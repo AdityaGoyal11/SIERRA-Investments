@@ -1,6 +1,7 @@
-# Terraform state files
+# state files for terraform
 terraform.tfstate
 terraform.tfstate.backup
+terraform.lock.hcl
 
-# Terraform local plugin cache
+# local plugin cache folder for terraform
 .terraform/
