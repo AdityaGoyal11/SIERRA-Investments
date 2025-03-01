@@ -1,0 +1,6 @@
+# Terraform state files
+terraform.tfstate
+terraform.tfstate.backup
+
+# Terraform local plugin cache
+.terraform/
