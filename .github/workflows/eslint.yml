@@ -1,0 +1,25 @@
+name: ESLint Code Quality Check
+
+on: 
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22 # It should matches your local version
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run ESLint
+        run: npx eslint . --fix
