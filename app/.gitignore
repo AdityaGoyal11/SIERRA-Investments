@@ -1,0 +1,13 @@
+node_modules/
+app/express/node_modules/
+
+# adding this just incase
+dist/
+build/
+
+# logs for any future implementations
+*.log
+logs/
+
+# env files for future use
+.env
