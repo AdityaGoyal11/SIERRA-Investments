@@ -20,6 +20,8 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+        working-directory: ./app
 
       - name: Run ESLint
         run: npx eslint . --fix
+        working-directory: ./app
