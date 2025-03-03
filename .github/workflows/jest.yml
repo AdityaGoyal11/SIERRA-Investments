@@ -20,6 +20,8 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+        working-directory: ./app
 
       - name: Run Jest Tests
         run: npm test
+        working-directory: ./app
