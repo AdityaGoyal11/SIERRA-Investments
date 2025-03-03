@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node express/src/index.js",
     "dev": "nodemon express/src/index.js",
-    "lint": "eslint"
+    "lint": "eslint",
+    "lint --fix": "eslint --fix"
   },
   "dependencies": {
     "aws-sdk": "^2.1550.0",
