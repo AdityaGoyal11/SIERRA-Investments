@@ -14,4 +14,5 @@ app.get('/api/esg', (req, res) => {
   res.json({ message: 'ESG endpoint placeholder' });
 });
 
-module.exports = app;
+
+module.exports = { app };
