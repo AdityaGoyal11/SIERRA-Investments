@@ -61,8 +61,8 @@ resource "aws_ecs_service" "sierra_api" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = ["subnet-06e50ed96e5c43a64"] # Replace with your subnet ID
-    security_groups = ["sg-0abbe4d2f8e585b5e"]    # Replace with your security group ID
+    subnets         = ["subnet-06e50ed96e5c43a64"]
+    security_groups = ["sg-0abbe4d2f8e585b5e"]
     assign_public_ip = true
   }
 } 
