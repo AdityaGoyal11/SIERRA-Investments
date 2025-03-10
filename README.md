@@ -97,12 +97,12 @@ Response: {
 #### Lambda Function Development
 1. Modify the Lambda function in `app/lambda/index.py`
 2. Package the function:
-   ```bash
+   ```
    cd app/lambda
    zip -r esg-etl.zip index.py
    ```
 3. Deploy using Terraform:
-   ```bash
+   ```
    # Navigate to /infra directory
    cd ../../infra
    terraform apply
@@ -111,14 +111,14 @@ Response: {
 #### Express API Development
 1. Modify files in `app/express/src/`
 2. Tests with coverage
-   ```bash
+   ```
    npm run test:coverage
    ```
 
 ## Docker Usage
 
 ### Development Environment
-```bash
+```
 # Start the program
 docker-compose up --build
 
