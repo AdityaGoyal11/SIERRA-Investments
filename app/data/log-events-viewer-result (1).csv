@@ -1,0 +1,401 @@
+timestamp,message
+1741610144558,"Processed row: {'ticker': 'fmc', 'name': 'FMC Corp', 'environment_score': 510, 'social_score': 307, 'governance_score': 315, 'total_score': 1132}
+"
+1741610144559,"Processed row: {'ticker': 'frt', 'name': 'Federal Realty Investment Trust', 'environment_score': 525, 'social_score': 302, 'governance_score': 300, 'total_score': 1127}
+"
+1741610144559,"Processed row: {'ticker': 'ftv', 'name': 'Fortive Corp', 'environment_score': 540, 'social_score': 326, 'governance_score': 305, 'total_score': 1171}
+"
+1741610144559,"Processed row: {'ticker': 'gps', 'name': 'Gap Inc', 'environment_score': 515, 'social_score': 349, 'governance_score': 300, 'total_score': 1164}
+"
+1741610144559,"Processed row: {'ticker': 'grmn', 'name': 'Garmin Ltd', 'environment_score': 205, 'social_score': 242, 'governance_score': 200, 'total_score': 647}
+"
+1741610144559,"Processed row: {'ticker': 'it', 'name': 'Gartner Inc', 'environment_score': 500, 'social_score': 316, 'governance_score': 315, 'total_score': 1131}
+"
+1741610144559,"Processed row: {'ticker': 'lly', 'name': 'Eli Lilly and Co', 'environment_score': 510, 'social_score': 360, 'governance_score': 310, 'total_score': 1180}
+"
+1741610144559,"Processed row: {'ticker': 're', 'name': 'Everest Re Group Ltd', 'environment_score': 505, 'social_score': 276, 'governance_score': 305, 'total_score': 1086}
+"
+1741610144559,"Processed row: {'ticker': 'evrg', 'name': 'Evergy Inc', 'environment_score': 555, 'social_score': 310, 'governance_score': 300, 'total_score': 1165}
+"
+1741610144559,"Processed row: {'ticker': 'fbhs', 'name': 'Fortune Brands Home & Security Inc', 'environment_score': 510, 'social_score': 302, 'governance_score': 300, 'total_score': 1112}
+"
+1741610144559,"Processed row: {'ticker': 'gild', 'name': 'Gilead Sciences Inc', 'environment_score': 500, 'social_score': 303, 'governance_score': 300, 'total_score': 1103}
+"
+1741610144559,"Processed row: {'ticker': 'holx', 'name': 'Hologic Inc', 'environment_score': 515, 'social_score': 324, 'governance_score': 315, 'total_score': 1154}
+"
+1741610144560,"Processed row: {'ticker': 'hsic', 'name': 'Henry Schein Inc', 'environment_score': 210, 'social_score': 205, 'governance_score': 200, 'total_score': 615}
+"
+1741610144560,"Processed row: {'ticker': 'hon', 'name': 'Honeywell International Inc', 'environment_score': 545, 'social_score': 344, 'governance_score': 308, 'total_score': 1197}
+"
+1741610144560,"Processed row: {'ticker': 'hst', 'name': 'Host Hotels & Resorts Inc', 'environment_score': 510, 'social_score': 318, 'governance_score': 318, 'total_score': 1146}
+"
+1741610144560,"Processed row: {'ticker': 'gd', 'name': 'General Dynamics Corp', 'environment_score': 510, 'social_score': 310, 'governance_score': 300, 'total_score': 1120}
+"
+1741610144560,"Processed row: {'ticker': 'has', 'name': 'Hasbro Inc', 'environment_score': 255, 'social_score': 301, 'governance_score': 300, 'total_score': 856}
+"
+1741610144560,"Processed row: {'ticker': 'hban', 'name': 'Huntington Bancshares Inc', 'environment_score': 308, 'social_score': 300, 'governance_score': 300, 'total_score': 908}
+"
+1741610144560,"Processed row: {'ticker': 'gl', 'name': 'Globe Life Inc', 'environment_score': 215, 'social_score': 238, 'governance_score': 215, 'total_score': 668}
+"
+1741610144560,"Processed row: {'ticker': 'gpc', 'name': 'Genuine Parts Co', 'environment_score': 535, 'social_score': 225, 'governance_score': 305, 'total_score': 1065}
+"
+1741610144560,"Processed row: {'ticker': 'gnrc', 'name': 'Generac Holdings Inc', 'environment_score': 535, 'social_score': 311, 'governance_score': 250, 'total_score': 1096}
+"
+1741610144560,"Processed row: {'ticker': 'gpn', 'name': 'Global Payments Inc', 'environment_score': 310, 'social_score': 343, 'governance_score': 265, 'total_score': 918}
+"
+1741610144560,"Processed row: {'ticker': 'hca', 'name': 'HCA Healthcare Inc', 'environment_score': 520, 'social_score': 348, 'governance_score': 305, 'total_score': 1173}
+"
+1741610144561,"Processed row: {'ticker': 'hbi', 'name': 'HanesBrands Inc', 'environment_score': 310, 'social_score': 223, 'governance_score': 305, 'total_score': 838}
+"
+1741610144561,"Processed row: {'ticker': 'hii', 'name': 'Huntington Ingalls Industries Inc', 'environment_score': 545, 'social_score': 315, 'governance_score': 315, 'total_score': 1175}
+"
+1741610144561,"Processed row: {'ticker': 'hpe', 'name': 'Hewlett Packard Enterprise Co', 'environment_score': 230, 'social_score': 359, 'governance_score': 230, 'total_score': 819}
+"
+1741610144561,"Processed row: {'ticker': 'hes', 'name': 'Hess Corp', 'environment_score': 535, 'social_score': 300, 'governance_score': 305, 'total_score': 1140}
+"
+1741610144561,"Processed row: {'ticker': 'hlt', 'name': 'Hilton Worldwide Holdings Inc', 'environment_score': 293, 'social_score': 200, 'governance_score': 205, 'total_score': 698}
+"
+1741610144561,"Processed row: {'ticker': 'hrl', 'name': 'Hormel Foods Corp', 'environment_score': 570, 'social_score': 322, 'governance_score': 300, 'total_score': 1192}
+"
+1741610144561,"Processed row: {'ticker': 'hpq', 'name': 'HP Inc', 'environment_score': 245, 'social_score': 211, 'governance_score': 200, 'total_score': 656}
+"
+1741610144561,"Processed row: {'ticker': 'hum', 'name': 'Humana Inc', 'environment_score': 462, 'social_score': 300, 'governance_score': 300, 'total_score': 1062}
+"
+1741610144561,"Processed row: {'ticker': 'hwm', 'name': 'Howmet Aerospace Inc', 'environment_score': 525, 'social_score': 315, 'governance_score': 320, 'total_score': 1160}
+"
+1741610144561,"Processed row: {'ticker': 'peak', 'name': 'Healthpeak Properties Inc', 'environment_score': 535, 'social_score': 331, 'governance_score': 335, 'total_score': 1201}
+"
+1741610144562,"Processed row: {'ticker': 'gis', 'name': 'General Mills Inc', 'environment_score': 585, 'social_score': 326, 'governance_score': 365, 'total_score': 1276}
+"
+1741610144598,"Processed row: {'ticker': 'ge', 'name': 'General Electric Co', 'environment_score': 533, 'social_score': 300, 'governance_score': 300, 'total_score': 1133}
+"
+1741610144598,"Processed row: {'ticker': 'spot', 'name': 'Spotify Technology SA', 'environment_score': 500, 'social_score': 283, 'governance_score': 255, 'total_score': 1038}
+"
+1741610144598,"Processed row: {'ticker': 'trtn', 'name': 'Triton International Ltd', 'environment_score': 477, 'social_score': 306, 'governance_score': 300, 'total_score': 1083}
+"
+1741610144598,"Processed row: {'ticker': 'trtx', 'name': 'TPG RE Finance Trust Inc', 'environment_score': 230, 'social_score': 239, 'governance_score': 300, 'total_score': 769}
+"
+1741610144598,"Processed row: {'ticker': 'tru', 'name': 'TransUnion', 'environment_score': 510, 'social_score': 313, 'governance_score': 310, 'total_score': 1133}
+"
+1741610144599,"Processed row: {'ticker': 'yeti', 'name': 'Yeti Holdings Inc', 'environment_score': 269, 'social_score': 253, 'governance_score': 305, 'total_score': 827}
+"
+1741610144599,"Processed row: {'ticker': 'yelp', 'name': 'Yelp Inc', 'environment_score': 245, 'social_score': 515, 'governance_score': 213, 'total_score': 973}
+"
+1741610144599,"Processed row: {'ticker': 'yext', 'name': 'Yext Inc', 'environment_score': 325, 'social_score': 314, 'governance_score': 310, 'total_score': 949}
+"
+1741610144599,"Processed row: {'ticker': 'spr', 'name': 'Spirit AeroSystems Holdings Inc', 'environment_score': 515, 'social_score': 337, 'governance_score': 300, 'total_score': 1152}
+"
+1741610144599,"Processed row: {'ticker': 'ysg', 'name': 'Yatsen Holding Ltd', 'environment_score': 355, 'social_score': 217, 'governance_score': 325, 'total_score': 897}
+"
+1741610144599,"Processed row: {'ticker': 'yrd', 'name': 'Yiren Digital Ltd', 'environment_score': 200, 'social_score': 205, 'governance_score': 205, 'total_score': 610}
+"
+1741610144599,"Processed row: {'ticker': 'yumc', 'name': 'Yum China Holdings Inc', 'environment_score': 205, 'social_score': 217, 'governance_score': 220, 'total_score': 642}
+"
+1741610144599,"Processed row: {'ticker': 'trox', 'name': 'Tronox Holdings PLC', 'environment_score': 503, 'social_score': 320, 'governance_score': 300, 'total_score': 1123}
+"
+1741610144599,"Processed row: {'ticker': 'zepp', 'name': 'Zepp Health Corp', 'environment_score': 202, 'social_score': 210, 'governance_score': 295, 'total_score': 707}
+"
+1741610144599,"Processed row: {'ticker': 'zev', 'name': 'Lightning eMotors Inc', 'environment_score': 535, 'social_score': 391, 'governance_score': 240, 'total_score': 1166}
+"
+1741610144600,"Processed row: {'ticker': 'zuo', 'name': 'Zuora Inc', 'environment_score': 240, 'social_score': 234, 'governance_score': 200, 'total_score': 674}
+"
+1741610144600,"Processed row: {'ticker': 'zim', 'name': 'ZIM Integrated Shipping Services Ltd', 'environment_score': 329, 'social_score': 351, 'governance_score': 320, 'total_score': 1000}
+"
+1741610144600,"Processed row: {'ticker': 'zyme', 'name': 'Zymeworks Inc', 'environment_score': 240, 'social_score': 326, 'governance_score': 305, 'total_score': 871}
+"
+1741610144600,"Processed row: {'ticker': 'zws', 'name': 'Zurn Elkay Water Solutions Corp', 'environment_score': 500, 'social_score': 300, 'governance_score': 300, 'total_score': 1100}
+"
+1741610144600,"Processed row: {'ticker': 'you', 'name': 'Clear Secure Inc', 'environment_score': 515, 'social_score': 278, 'governance_score': 205, 'total_score': 998}
+"
+1741610144600,"Processed row: {'ticker': 'zen', 'name': 'Zendesk Inc', 'environment_score': 515, 'social_score': 338, 'governance_score': 320, 'total_score': 1173}
+"
+1741610144600,"Processed row: {'ticker': 'plxs', 'name': 'Plexus Corp', 'environment_score': 510, 'social_score': 300, 'governance_score': 300, 'total_score': 1110}
+"
+1741610144600,"Processed row: {'ticker': 'ship', 'name': 'Seanergy Maritime Holdings Corp', 'environment_score': 345, 'social_score': 300, 'governance_score': 305, 'total_score': 950}
+"
+1741610144600,"Processed row: {'ticker': 'shls', 'name': 'Shoals Technologies Group Inc', 'environment_score': 285, 'social_score': 280, 'governance_score': 300, 'total_score': 865}
+"
+1741610144600,"Processed row: {'ticker': 'shoo', 'name': 'Steven Madden Ltd', 'environment_score': 508, 'social_score': 231, 'governance_score': 300, 'total_score': 1039}
+"
+1741610144600,"Processed row: {'ticker': 'shyf', 'name': 'Shyft Group Inc', 'environment_score': 510, 'social_score': 303, 'governance_score': 275, 'total_score': 1088}
+"
+1741610144600,"Processed row: {'ticker': 'sibn', 'name': 'SI-BONE Inc', 'environment_score': 220, 'social_score': 228, 'governance_score': 210, 'total_score': 658}
+"
+1741610144601,"Processed row: {'ticker': 'sieb', 'name': 'Siebert Financial Corp', 'environment_score': 300, 'social_score': 299, 'governance_score': 235, 'total_score': 834}
+"
+1741610144601,"Processed row: {'ticker': 'plya', 'name': 'Playa Hotels & Resorts NV', 'environment_score': 210, 'social_score': 200, 'governance_score': 205, 'total_score': 615}
+"
+1741610144601,"Processed row: {'ticker': 'wwe', 'name': 'World Wrestling Entertainment Inc', 'environment_score': 275, 'social_score': 332, 'governance_score': 315, 'total_score': 922}
+"
+1741610144601,"Processed row: {'ticker': 'pmcb', 'name': 'PharmaCyte Biotech Inc', 'environment_score': 220, 'social_score': 202, 'governance_score': 300, 'total_score': 722}
+"
+1741610144601,"Processed row: {'ticker': 'www', 'name': 'Wolverine World Wide Inc', 'environment_score': 390, 'social_score': 298, 'governance_score': 308, 'total_score': 996}
+"
+1741610144601,"Processed row: {'ticker': 'xhr', 'name': 'Xenia Hotels & Resorts Inc', 'environment_score': 260, 'social_score': 263, 'governance_score': 236, 'total_score': 759}
+"
+1741610144601,"Processed row: {'ticker': 'x', 'name': 'United States Steel Corp', 'environment_score': 535, 'social_score': 364, 'governance_score': 300, 'total_score': 1199}
+"
+1741610144601,"Processed row: {'ticker': 'xpev', 'name': 'Xpeng Inc', 'environment_score': 215, 'social_score': 208, 'governance_score': 200, 'total_score': 623}
+"
+1741610144601,"Processed row: {'ticker': 'xpo', 'name': 'XPO Logistics Inc', 'environment_score': 560, 'social_score': 318, 'governance_score': 300, 'total_score': 1178}
+"
+1741610144601,"Processed row: {'ticker': 'xin', 'name': 'Xinyuan Real Estate Co Ltd', 'environment_score': 205, 'social_score': 242, 'governance_score': 300, 'total_score': 747}
+"
+1741610144618,"Processed row: {'ticker': 'xl', 'name': 'XL Fleet Corp', 'environment_score': 200, 'social_score': 200, 'governance_score': 200, 'total_score': 600}
+"
+1741610144618,"Processed row: {'ticker': 'xyf', 'name': 'X Financial', 'environment_score': 215, 'social_score': 205, 'governance_score': 200, 'total_score': 620}
+"
+1741610144618,"Processed row: {'ticker': 'y', 'name': 'Alleghany Corp', 'environment_score': 215, 'social_score': 240, 'governance_score': 300, 'total_score': 755}
+"
+1741610144618,"Processed row: {'ticker': 'yala', 'name': 'Yalla Group Ltd', 'environment_score': 233, 'social_score': 244, 'governance_score': 220, 'total_score': 697}
+"
+1741610144618,"Processed row: {'ticker': 'wts', 'name': 'Watts Water Technologies Inc', 'environment_score': 420, 'social_score': 303, 'governance_score': 210, 'total_score': 933}
+"
+1741610144618,"Processed row: {'ticker': 'sien', 'name': 'Sientra Inc', 'environment_score': 219, 'social_score': 308, 'governance_score': 236, 'total_score': 763}
+"
+1741610144619,"Processed row: {'ticker': 'hain', 'name': 'Hain Celestial Group Inc', 'environment_score': 520, 'social_score': 302, 'governance_score': 305, 'total_score': 1127}
+"
+1741610144619,"Processed row: {'ticker': 'mtc', 'name': 'MMTEC Inc', 'environment_score': 221, 'social_score': 225, 'governance_score': 305, 'total_score': 751}
+"
+1741610144619,"Processed row: {'ticker': 'mtcr', 'name': 'Metacrine Inc', 'environment_score': 210, 'social_score': 207, 'governance_score': 330, 'total_score': 747}
+"
+1741610144619,"Processed row: {'ticker': 'mtem', 'name': 'Molecular Templates Inc', 'environment_score': 360, 'social_score': 325, 'governance_score': 320, 'total_score': 1005}
+"
+1741610144619,"Processed row: {'ticker': 'mtls', 'name': 'Materialise NV', 'environment_score': 505, 'social_score': 301, 'governance_score': 300, 'total_score': 1106}
+"
+1741610144619,"Processed row: {'ticker': 'mtex', 'name': 'Mannatech Inc', 'environment_score': 200, 'social_score': 260, 'governance_score': 230, 'total_score': 690}
+"
+1741610144619,"Processed row: {'ticker': 'mtrx', 'name': 'Matrix Service Co', 'environment_score': 589, 'social_score': 390, 'governance_score': 277, 'total_score': 1256}
+"
+1741610144619,"Processed row: {'ticker': 'halo', 'name': 'Halozyme Therapeutics Inc', 'environment_score': 510, 'social_score': 302, 'governance_score': 315, 'total_score': 1127}
+"
+1741610144619,"Processed row: {'ticker': 'hall', 'name': 'Hallmark Financial Services Inc', 'environment_score': 215, 'social_score': 233, 'governance_score': 300, 'total_score': 748}
+"
+1741610144619,"Processed row: {'ticker': 'mvbf', 'name': 'MVB Financial Corp', 'environment_score': 210, 'social_score': 215, 'governance_score': 215, 'total_score': 640}
+"
+1741610144620,"Processed row: {'ticker': 'mvst', 'name': 'Microvast Holdings Inc', 'environment_score': 225, 'social_score': 282, 'governance_score': 210, 'total_score': 717}
+"
+1741610144620,"Processed row: {'ticker': 'mvis', 'name': 'MicroVision Inc', 'environment_score': 451, 'social_score': 300, 'governance_score': 330, 'total_score': 1081}
+"
+1741610144620,"Processed row: {'ticker': 'mxct', 'name': 'MaxCyte Inc', 'environment_score': 220, 'social_score': 300, 'governance_score': 248, 'total_score': 768}
+"
+1741610144620,"Processed row: {'ticker': 'mygn', 'name': 'Myriad Genetics Inc', 'environment_score': 353, 'social_score': 321, 'governance_score': 294, 'total_score': 968}
+"
+1741610144620,"Processed row: {'ticker': 'myfw', 'name': 'First Western Financial Inc', 'environment_score': 351, 'social_score': 300, 'governance_score': 235, 'total_score': 886}
+"
+1741610144620,"Processed row: {'ticker': 'mxl', 'name': 'Maxlinear Inc', 'environment_score': 535, 'social_score': 325, 'governance_score': 335, 'total_score': 1195}
+"
+1741610144620,"Processed row: {'ticker': 'mymd', 'name': 'MyMD Pharmaceuticals Inc', 'environment_score': 205, 'social_score': 257, 'governance_score': 230, 'total_score': 692}
+"
+1741610144620,"Processed row: {'ticker': 'myps', 'name': 'Playstudios Inc', 'environment_score': 205, 'social_score': 202, 'governance_score': 200, 'total_score': 607}
+"
+1741610144620,"Processed row: {'ticker': 'mttr', 'name': 'Matterport Inc', 'environment_score': 346, 'social_score': 325, 'governance_score': 260, 'total_score': 931}
+"
+1741610144620,"Processed row: {'ticker': 'mtsi', 'name': 'MACOM Technology Solutions Holdings Inc', 'environment_score': 377, 'social_score': 309, 'governance_score': 255, 'total_score': 941}
+"
+1741610144620,"Processed row: {'ticker': 'clro', 'name': 'Clearone Inc', 'environment_score': 370, 'social_score': 228, 'governance_score': 210, 'total_score': 808}
+"
+1741610144621,"Processed row: {'ticker': 'clsn', 'name': 'Celsion Corp', 'environment_score': 255, 'social_score': 214, 'governance_score': 300, 'total_score': 769}
+"
+1741610144621,"Processed row: {'ticker': 'gure', 'name': 'Gulf Resources Inc', 'environment_score': 408, 'social_score': 206, 'governance_score': 300, 'total_score': 914}
+"
+1741610144621,"Processed row: {'ticker': 'gvp', 'name': 'GSE Systems Inc', 'environment_score': 505, 'social_score': 307, 'governance_score': 245, 'total_score': 1057}
+"
+1741610144621,"Processed row: {'ticker': 'gyro', 'name': 'Gyrodyne LLC', 'environment_score': 240, 'social_score': 206, 'governance_score': 240, 'total_score': 686}
+"
+1741610144621,"Processed row: {'ticker': 'gwrs', 'name': 'Global Water Resources Inc', 'environment_score': 367, 'social_score': 297, 'governance_score': 235, 'total_score': 899}
+"
+1741610144621,"Processed row: {'ticker': 'ha', 'name': 'Hawaiian Holdings Inc', 'environment_score': 200, 'social_score': 321, 'governance_score': 200, 'total_score': 721}
+"
+1741610144621,"Processed row: {'ticker': 'clsk', 'name': 'CleanSpark Inc', 'environment_score': 570, 'social_score': 326, 'governance_score': 310, 'total_score': 1206}
+"
+1741610144621,"Processed row: {'ticker': 'clsd', 'name': 'Clearside Biomedical Inc', 'environment_score': 215, 'social_score': 230, 'governance_score': 200, 'total_score': 645}
+"
+1741610144621,"Processed row: {'ticker': 'haac', 'name': 'Health Assurance Acquisition Corp', 'environment_score': 200, 'social_score': 258, 'governance_score': 300, 'total_score': 758}
+"
+1741610144621,"Processed row: {'ticker': 'hafc', 'name': 'Hanmi Financial Corp', 'environment_score': 250, 'social_score': 207, 'governance_score': 233, 'total_score': 690}
+"
+1741610144622,"Processed row: {'ticker': 'clst', 'name': 'Catalyst Bancorp Inc', 'environment_score': 260, 'social_score': 350, 'governance_score': 267, 'total_score': 877}
+"
+1741610144658,"Processed row: {'ticker': 'clwt', 'name': 'Euro Tech Holdings Company Ltd', 'environment_score': 230, 'social_score': 201, 'governance_score': 210, 'total_score': 641}
+"
+1741610144658,"Processed row: {'ticker': 'clxt', 'name': 'Calyxt Inc', 'environment_score': 535, 'social_score': 322, 'governance_score': 325, 'total_score': 1182}
+"
+1741610144659,"Processed row: {'ticker': 'cmbm', 'name': 'Cambium Networks Corp', 'environment_score': 505, 'social_score': 337, 'governance_score': 300, 'total_score': 1142}
+"
+1741610144659,"Processed row: {'ticker': 'cmco', 'name': 'Columbus McKinnon Corp', 'environment_score': 200, 'social_score': 323, 'governance_score': 240, 'total_score': 763}
+"
+1741610144659,"Processed row: {'ticker': 'evk', 'name': 'Ever-Glory International Group Inc', 'environment_score': 200, 'social_score': 211, 'governance_score': 210, 'total_score': 621}
+"
+1741610144659,"Processed row: {'ticker': 'clvs', 'name': 'Clovis Oncology Inc', 'environment_score': 225, 'social_score': 212, 'governance_score': 300, 'total_score': 737}
+"
+1741610144659,"Processed row: {'ticker': 'clvr', 'name': 'Clever Leaves Holdings Inc', 'environment_score': 225, 'social_score': 243, 'governance_score': 205, 'total_score': 673}
+"
+1741610144659,"Processed row: {'ticker': 'happ', 'name': 'Happiness Development Group Ltd', 'environment_score': 225, 'social_score': 207, 'governance_score': 300, 'total_score': 732}
+"
+1741610144659,"Processed row: {'ticker': 'hbcp', 'name': 'Home Bancorp Inc', 'environment_score': 230, 'social_score': 202, 'governance_score': 200, 'total_score': 632}
+"
+1741610144659,"Processed row: {'ticker': 'hbio', 'name': 'Harvard Bioscience Inc', 'environment_score': 250, 'social_score': 221, 'governance_score': 300, 'total_score': 771}
+"
+1741610144659,"Processed row: {'ticker': 'hbnc', 'name': 'Horizon Bancorp Inc', 'environment_score': 255, 'social_score': 321, 'governance_score': 233, 'total_score': 809}
+"
+1741610144659,"Processed row: {'ticker': 'hbt', 'name': 'HBT Financial Inc', 'environment_score': 245, 'social_score': 275, 'governance_score': 300, 'total_score': 820}
+"
+1741610144659,"Processed row: {'ticker': 'hcat', 'name': 'Health Catalyst Inc', 'environment_score': 545, 'social_score': 324, 'governance_score': 320, 'total_score': 1189}
+"
+1741610144660,"Processed row: {'ticker': 'hcar', 'name': 'Healthcare Services Acquisition Corp', 'environment_score': 245, 'social_score': 205, 'governance_score': 300, 'total_score': 750}
+"
+1741610144660,"Processed row: {'ticker': 'harp', 'name': 'Harpoon Therapeutics Inc', 'environment_score': 485, 'social_score': 300, 'governance_score': 310, 'total_score': 1095}
+"
+1741610144660,"Processed row: {'ticker': 'hayn', 'name': 'Haynes International Inc', 'environment_score': 500, 'social_score': 301, 'governance_score': 300, 'total_score': 1101}
+"
+1741610144660,"Processed row: {'ticker': 'pnbk', 'name': 'Patriot National Bancorp Inc', 'environment_score': 205, 'social_score': 302, 'governance_score': 210, 'total_score': 717}
+"
+1741610144660,"Processed row: {'ticker': 'hcdi', 'name': 'Harbor Custom Development Inc', 'environment_score': 222, 'social_score': 221, 'governance_score': 208, 'total_score': 651}
+"
+1741610144660,"Processed row: {'ticker': 'hcci', 'name': 'Heritage-Crystal Clean Inc', 'environment_score': 525, 'social_score': 400, 'governance_score': 300, 'total_score': 1225}
+"
+1741610144660,"Processed row: {'ticker': 'pnfp', 'name': 'Pinnacle Financial Partners Inc', 'environment_score': 271, 'social_score': 328, 'governance_score': 250, 'total_score': 849}
+"
+1741610144660,"Processed row: {'ticker': 'pnt', 'name': 'POINT Biopharma Global Inc', 'environment_score': 320, 'social_score': 221, 'governance_score': 285, 'total_score': 826}
+"
+1741610144660,"Processed row: {'ticker': 'poai', 'name': 'Predictive Oncology Inc', 'environment_score': 278, 'social_score': 297, 'governance_score': 220, 'total_score': 795}
+"
+1741610144660,"Processed row: {'ticker': 'pola', 'name': 'Polar Power Inc', 'environment_score': 200, 'social_score': 200, 'governance_score': 200, 'total_score': 600}
+"
+1741610144661,"Processed row: {'ticker': 'podd', 'name': 'Insulet Corp', 'environment_score': 215, 'social_score': 233, 'governance_score': 205, 'total_score': 653}
+"
+1741610144661,"Processed row: {'ticker': 'powi', 'name': 'Power Integrations Inc', 'environment_score': 575, 'social_score': 285, 'governance_score': 305, 'total_score': 1165}
+"
+1741610144661,"Processed row: {'ticker': 'poww', 'name': 'Ammo Inc', 'environment_score': 233, 'social_score': 224, 'governance_score': 200, 'total_score': 657}
+"
+1741610144661,"Processed row: {'ticker': 'pnrg', 'name': 'Primeenergy Resources Corp', 'environment_score': 200, 'social_score': 200, 'governance_score': 260, 'total_score': 660}
+"
+1741610144661,"Processed row: {'ticker': 'pntg', 'name': 'Pennant Group Inc', 'environment_score': 245, 'social_score': 306, 'governance_score': 200, 'total_score': 751}
+"
+1741610144661,"Processed row: {'ticker': 'ppbi', 'name': 'Pacific Premier Bancorp Inc', 'environment_score': 565, 'social_score': 328, 'governance_score': 315, 'total_score': 1208}
+"
+1741610144661,"Processed row: {'ticker': 'ppih', 'name': 'Perma-Pipe International Holdings Inc', 'environment_score': 500, 'social_score': 260, 'governance_score': 300, 'total_score': 1060}
+"
+1741610144661,"Processed row: {'ticker': 'ppc', 'name': 'Pilgrims Pride Corp', 'environment_score': 500, 'social_score': 302, 'governance_score': 220, 'total_score': 1022}
+"
+1741610144661,"Processed row: {'ticker': 'praa', 'name': 'PRA Group Inc', 'environment_score': 473, 'social_score': 321, 'governance_score': 310, 'total_score': 1104}
+"
+1741610144661,"Processed row: {'ticker': 'ppsi', 'name': 'Pioneer Power Solutions Inc', 'environment_score': 299, 'social_score': 305, 'governance_score': 315, 'total_score': 919}
+"
+1741610144661,"Processed row: {'ticker': 'prax', 'name': 'Praxis Precision Medicines Inc', 'environment_score': 200, 'social_score': 215, 'governance_score': 215, 'total_score': 630}
+"
+1741610144662,"Processed row: {'ticker': 'prct', 'name': 'Procept Biorobotics Corp', 'environment_score': 200, 'social_score': 224, 'governance_score': 300, 'total_score': 724}
+"
+1741610144678,"Processed row: {'ticker': 'prch', 'name': 'Porch Group Inc', 'environment_score': 225, 'social_score': 227, 'governance_score': 215, 'total_score': 667}
+"
+1741610144678,"Processed row: {'ticker': 'pre', 'name': 'Artisan Acquisition Corp', 'environment_score': 245, 'social_score': 203, 'governance_score': 265, 'total_score': 713}
+"
+1741610144678,"Processed row: {'ticker': 'prdo', 'name': 'Perdoceo Education Corp', 'environment_score': 365, 'social_score': 297, 'governance_score': 250, 'total_score': 912}
+"
+1741610144678,"Processed row: {'ticker': 'sisi', 'name': 'Shineco Inc', 'environment_score': 340, 'social_score': 346, 'governance_score': 305, 'total_score': 991}
+"
+1741610144679,"Processed row: {'ticker': 'sitm', 'name': 'SiTime Corp', 'environment_score': 505, 'social_score': 304, 'governance_score': 300, 'total_score': 1109}
+"
+1741610144679,"Processed row: {'ticker': 'siri', 'name': 'Sirius XM Holdings Inc', 'environment_score': 240, 'social_score': 302, 'governance_score': 205, 'total_score': 747}
+"
+1741610144679,"Processed row: {'ticker': 'sj', 'name': 'Scienjoy Holding Corp', 'environment_score': 260, 'social_score': 320, 'governance_score': 240, 'total_score': 820}
+"
+1741610144679,"Processed row: {'ticker': 'pow', 'name': 'Powered Brands', 'environment_score': 235, 'social_score': 231, 'governance_score': 250, 'total_score': 716}
+"
+1741610144679,"Processed row: {'ticker': 'powl', 'name': 'Powell Industries Inc', 'environment_score': 500, 'social_score': 240, 'governance_score': 215, 'total_score': 955}
+"
+1741610144679,"Processed row: {'ticker': 'upwk', 'name': 'Upwork Inc', 'environment_score': 275, 'social_score': 264, 'governance_score': 278, 'total_score': 817}
+"
+1741610144679,"Processed row: {'ticker': 'usak', 'name': 'USA Truck Inc', 'environment_score': 532, 'social_score': 311, 'governance_score': 303, 'total_score': 1146}
+"
+1741610144679,"Processed row: {'ticker': 'usau', 'name': 'US Gold Corp', 'environment_score': 400, 'social_score': 240, 'governance_score': 300, 'total_score': 940}
+"
+1741610144679,"Processed row: {'ticker': 'usap', 'name': 'Universal Stainless & Alloy Products Inc', 'environment_score': 238, 'social_score': 231, 'governance_score': 200, 'total_score': 669}
+"
+1741610144679,"Processed row: {'ticker': 'useg', 'name': 'US Energy Corp', 'environment_score': 438, 'social_score': 265, 'governance_score': 315, 'total_score': 1018}
+"
+1741610144680,"Processed row: {'ticker': 'usio', 'name': 'Usio Inc', 'environment_score': 285, 'social_score': 245, 'governance_score': 240, 'total_score': 770}
+"
+1741610144680,"Processed row: {'ticker': 'uthr', 'name': 'United Therapeutics Corp', 'environment_score': 233, 'social_score': 259, 'governance_score': 300, 'total_score': 792}
+"
+1741610144680,"Processed row: {'ticker': 'urgn', 'name': 'Urogen Pharma Ltd', 'environment_score': 210, 'social_score': 251, 'governance_score': 290, 'total_score': 751}
+"
+1741610144680,"Processed row: {'ticker': 'urbn', 'name': 'Urban Outfitters Inc', 'environment_score': 335, 'social_score': 300, 'governance_score': 300, 'total_score': 935}
+"
+1741610144680,"Processed row: {'ticker': 'utme', 'name': 'Utime Ltd', 'environment_score': 217, 'social_score': 200, 'governance_score': 200, 'total_score': 617}
+"
+1741610144680,"Processed row: {'ticker': 'utrs', 'name': 'Minerva Surgical Inc', 'environment_score': 205, 'social_score': 201, 'governance_score': 210, 'total_score': 616}
+"
+1741610144680,"Processed row: {'ticker': 'utsi', 'name': 'UTStarcom Holdings Corp', 'environment_score': 340, 'social_score': 310, 'governance_score': 365, 'total_score': 1015}
+"
+1741610144680,"Processed row: {'ticker': 'uxin', 'name': 'Uxin Ltd', 'environment_score': 203, 'social_score': 202, 'governance_score': 225, 'total_score': 630}
+"
+1741610144680,"Processed row: {'ticker': 'uvsp', 'name': 'Univest Financial Corp', 'environment_score': 331, 'social_score': 322, 'governance_score': 305, 'total_score': 958}
+"
+1741610144680,"Processed row: {'ticker': 'cmcm', 'name': 'Cheetah Mobile Inc', 'environment_score': 205, 'social_score': 214, 'governance_score': 215, 'total_score': 634}
+"
+1741610144681,"Processed row: {'ticker': 'cmc', 'name': 'Commercial Metals Co', 'environment_score': 223, 'social_score': 212, 'governance_score': 200, 'total_score': 635}
+"
+1741610144681,"Processed row: {'ticker': 'uslm', 'name': 'United States Lime & Minerals Inc', 'environment_score': 500, 'social_score': 233, 'governance_score': 300, 'total_score': 1033}
+"
+1741610144681,"Processed row: {'ticker': 'utmd', 'name': 'Utah Medical Products Inc', 'environment_score': 240, 'social_score': 236, 'governance_score': 250, 'total_score': 726}
+"
+1741610144681,"Processed row: {'ticker': 'cmp', 'name': 'Compass Minerals International Inc', 'environment_score': 505, 'social_score': 302, 'governance_score': 320, 'total_score': 1127}
+"
+1741610144681,"Processed row: {'ticker': 'cnd', 'name': 'Concord Acquisition Corp', 'environment_score': 205, 'social_score': 257, 'governance_score': 300, 'total_score': 762}
+"
+1741610144681,"Processed row: {'ticker': 'cnf', 'name': 'CNFinance Holdings Ltd', 'environment_score': 200, 'social_score': 200, 'governance_score': 220, 'total_score': 620}
+"
+1741610144681,"Processed row: {'ticker': 'cnmd', 'name': 'Conmed Corp', 'environment_score': 441, 'social_score': 300, 'governance_score': 270, 'total_score': 1011}
+"
+1741610144681,"Processed row: {'ticker': 'cnk', 'name': 'Cinemark Holdings Inc', 'environment_score': 330, 'social_score': 300, 'governance_score': 300, 'total_score': 930}
+"
+1741610144681,"Processed row: {'ticker': 'cnne', 'name': 'Cannae Holdings Inc', 'environment_score': 215, 'social_score': 203, 'governance_score': 203, 'total_score': 621}
+"
+1741610144681,"Processed row: {'ticker': 'cno', 'name': 'CNO Financial Group Inc', 'environment_score': 500, 'social_score': 322, 'governance_score': 315, 'total_score': 1137}
+"
+1741610144682,"Processed row: {'ticker': 'cna', 'name': 'CNA Financial Corp', 'environment_score': 540, 'social_score': 329, 'governance_score': 340, 'total_score': 1209}
+"
+1741610144698,"Processed row: {'ticker': 'cmre', 'name': 'Costamare Inc', 'environment_score': 242, 'social_score': 204, 'governance_score': 200, 'total_score': 646}
+"
+1741610144698,"Processed row: {'ticker': 'gva', 'name': 'Granite Construction Inc', 'environment_score': 200, 'social_score': 200, 'governance_score': 200, 'total_score': 600}
+"
+1741610144698,"Processed row: {'ticker': 'fn', 'name': 'Fabrinet', 'environment_score': 510, 'social_score': 209, 'governance_score': 210, 'total_score': 929}
+"
+1741610144698,"Processed row: {'ticker': 'h', 'name': 'Hyatt Hotels Corp', 'environment_score': 235, 'social_score': 209, 'governance_score': 205, 'total_score': 649}
+"
+1741610144699,"Processed row: {'ticker': 'hasi', 'name': 'Hannon Armstrong Sustainable Infrastructure Capital Inc', 'environment_score': 646, 'social_score': 404, 'governance_score': 313, 'total_score': 1363}
+"
+1741610144699,"Processed row: {'ticker': 'hayw', 'name': 'Hayward Holdings Inc', 'environment_score': 535, 'social_score': 305, 'governance_score': 300, 'total_score': 1140}
+"
+1741610144699,"Processed row: {'ticker': 'hbb', 'name': 'Hamilton Beach Brands Holding Co', 'environment_score': 245, 'social_score': 272, 'governance_score': 230, 'total_score': 747}
+"
+1741610144699,"Processed row: {'ticker': 'hcc', 'name': 'Warrior Met Coal Inc', 'environment_score': 215, 'social_score': 200, 'governance_score': 200, 'total_score': 615}
+"
+1741610144699,"Processed row: {'ticker': 'hci', 'name': 'Hci Group Inc', 'environment_score': 205, 'social_score': 260, 'governance_score': 300, 'total_score': 765}
+"
+1741610144699,"Processed row: {'ticker': 'he', 'name': 'Hawaiian Electric Industries Inc', 'environment_score': 585, 'social_score': 348, 'governance_score': 310, 'total_score': 1243}
+"
+1741610144699,"Processed row: {'ticker': 'gwre', 'name': 'Guidewire Software Inc', 'environment_score': 549, 'social_score': 321, 'governance_score': 330, 'total_score': 1200}
+"
+1741610144699,"Processed row: {'ticker': 'hae', 'name': 'Haemonetics Corp', 'environment_score': 448, 'social_score': 303, 'governance_score': 305, 'total_score': 1056}
+"
+1741610144699,"Processed row: {'ticker': 'hep', 'name': 'Holly Energy Partners LP', 'environment_score': 511, 'social_score': 225, 'governance_score': 215, 'total_score': 951}
+"
+1741610144699,"Processed row: {'ticker': 'hgv', 'name': 'Hilton Grand Vacations Inc', 'environment_score': 305, 'social_score': 288, 'governance_score': 250, 'total_score': 843}
+"
+1741610144700,"Processed row: {'ticker': 'hi', 'name': 'Hillenbrand Inc', 'environment_score': 489, 'social_score': 349, 'governance_score': 300, 'total_score': 1138}
+"
+1741610144700,"Processed row: {'ticker': 'hhc', 'name': 'Howard Hughes Corp', 'environment_score': 500, 'social_score': 300, 'governance_score': 300, 'total_score': 1100}
+"
+1741610144700,"Processed row: {'ticker': 'hubs', 'name': 'HubSpot Inc', 'environment_score': 480, 'social_score': 329, 'governance_score': 320, 'total_score': 1129}
+"
+1741610144700,"Processed row: {'ticker': 'hesm', 'name': 'Hess Midstream LP', 'environment_score': 307, 'social_score': 257, 'governance_score': 255, 'total_score': 819}
+"
+1741610144700,"Processed row: {'ticker': 'hei', 'name': 'HEICO Corp', 'environment_score': 225, 'social_score': 203, 'governance_score': 205, 'total_score': 633}
+"
+1741610144741,"END RequestId: 7eadb7a6-1e7a-41e5-ab42-a2aed433f775
+"
+1741610144741,"REPORT RequestId: 7eadb7a6-1e7a-41e5-ab42-a2aed433f775	Duration: 901.40 ms	Billed Duration: 902 ms	Memory Size: 256 MB	Max Memory Used: 181 MB	Init Duration: 2715.91 ms	
+"

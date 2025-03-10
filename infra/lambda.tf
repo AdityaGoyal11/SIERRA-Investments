@@ -2,9 +2,18 @@ resource "aws_lambda_function" "esg_etl" {
   function_name = "esg-etl-lambda"
   role          = "arn:aws:iam::249414161180:role/LabRole"
   handler       = "index.handler"
-  runtime       = "nodejs16.x"
+  runtime       = "python3.9"
   filename        = "../app/lambda/esg-etl.zip"
   source_code_hash = filebase64sha256("../app/lambda/esg-etl.zip")
+  # Increased timeout for processing
+  timeout       = 30
+  # Increased memory for pandas
+  memory_size   = 256
+  
+  layers = [
+    # AWS-provided pandas layer
+    "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python39:9"
+  ]
   
   environment {
     variables = {

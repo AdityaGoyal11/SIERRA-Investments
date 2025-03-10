@@ -1,7 +1,21 @@
-# state files for terraform
+# Terraform
 terraform.tfstate
 terraform.tfstate.backup
 terraform.lock.hcl
-
-# local plugin cache folder for terraform
 .terraform/
+
+# Node.js
+node_modules/
+npm-debug.log
+.env
+.env.local
+.env.*.local
+
+# Testing
+coverage/
+
+# Docker
+docker/dynamodb/
+
+# Build
+*.zip
