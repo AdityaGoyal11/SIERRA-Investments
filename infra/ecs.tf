@@ -57,12 +57,13 @@ resource "aws_ecs_service" "sierra_api" {
   name            = "sierra-api"
   cluster         = aws_ecs_cluster.sierra_cluster.id
   task_definition = aws_ecs_task_definition.sierra_api.arn
-  desired_count   = 1
+  # set this to 0 to not use so we dont incure expenses
+  desired_count   = 0
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = ["subnet-06e50ed96e5c43a64"] # Replace with your subnet ID
-    security_groups = ["sg-0abbe4d2f8e585b5e"]    # Replace with your security group ID
+    subnets         = ["subnet-06e50ed96e5c43a64"]
+    security_groups = ["sg-0abbe4d2f8e585b5e"]
     assign_public_ip = true
   }
 } 

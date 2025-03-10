@@ -1,26 +1,23 @@
 {
   "name": "sierra-investments",
   "version": "1.0.0",
-  "description": "ESG data processing and visualization service",
-  "main": "express/src/index.js",
+  "description": "ESG data processing and API service",
+  "main": "express/src/server.js",
   "scripts": {
-    "start": "node express/src/index.js",
-    "dev": "nodemon express/src/index.js",
-    "lint": "eslint",
-    "lint --fix": "eslint --fix",
-    "test": "jest"
+    "start": "node express/src/server.js",
+    "dev": "nodemon express/src/server.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
-    "aws-sdk": "^2.1550.0",
-    "express": "^4.18.2",
-    "jest": "^29.7.0"
+    "aws-sdk": "^2.1569.0",
+    "express": "^4.18.2"
   },
   "devDependencies": {
-    "@eslint/js": "^9.21.0",
-    "eslint": "^9.21.0",
-    "eslint-plugin-react": "^7.37.4",
-    "globals": "^16.0.0",
-    "nodemon": "^3.0.3"
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.3",
+    "supertest": "^6.3.4"
   },
   "author": "",
   "license": "ISC"
