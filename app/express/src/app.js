@@ -1,5 +1,6 @@
 const express = require('express');
 const AWS = require('aws-sdk');
+
 const app = express();
 
 // Check if we're running locally or in the AWS cloud
@@ -14,7 +15,7 @@ if (isLocal) {
         endpoint: process.env.DYNAMODB_ENDPOINT,
         credentials: {
             // Fake keys for local testing
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID, 
+            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
             secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
         }
     });
@@ -30,6 +31,7 @@ app.use(express.json());
 
 // ESG routes
 const esgRoutes = require('./routes/esg');
+
 app.use('/api/esg', esgRoutes);
 
 // Check if server online

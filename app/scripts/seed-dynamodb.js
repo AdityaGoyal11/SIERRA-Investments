@@ -61,7 +61,7 @@ const sampleData = [
 // Function to add our sample data to the database
 const seedData = async () => {
     console.log('Starting to add sample data...');
-    
+
     // Go through each company in our sample data
     for (const item of sampleData) {
         const params = {
@@ -70,7 +70,7 @@ const seedData = async () => {
             // The company data to add
             Item: item
         };
-        
+
         try {
             // Try to add this company's data
             await dynamodb.put(params).promise();
@@ -80,7 +80,7 @@ const seedData = async () => {
             console.error(`Error adding data for ${item.ticker}:`, error);
         }
     }
-    
+
     console.log('Finished adding sample data');
 };
 

@@ -1,5 +1,6 @@
 const express = require('express');
 const AWS = require('aws-sdk');
+
 const router = express.Router();
 
 // Set up our connection to DynamoDB
@@ -9,12 +10,12 @@ const dynamodb = new AWS.DynamoDB.DocumentClient();
 router.get('/:ticker', async (req, res) => {
     // Get the ticker from the URL ('dis' from /api/esg/dis)
     const { ticker } = req.params;
-    
+
     // Set up our database query (search request)
     const params = {
         // Look in this table
         TableName: 'esg_processed',
-        // Find where ticker matches   
+        // Find where ticker matches
         KeyConditionExpression: 'ticker = :ticker',
         // The ticker we're looking for
         ExpressionAttributeValues: {
@@ -25,7 +26,7 @@ router.get('/:ticker', async (req, res) => {
     try {
         // Ask DynamoDB for the data (asking dynamodb for info)
         const data = await dynamodb.query(params).promise();
-        
+
         // If data found, send it back
         if (data.Items && data.Items.length > 0) {
             res.json(data.Items[0]);
@@ -45,4 +46,4 @@ router.get('/', (req, res) => {
     res.json({ message: 'ESG endpoint placeholder' });
 });
 
-module.exports = router; 
+module.exports = router;

@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 22
+          node-version: 22 # Current LTS version
 
       - name: Install Dependencies
         run: npm install
