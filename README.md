@@ -55,7 +55,7 @@ This will:
 
 ### Testing
 
-The app has testing for both DynamoDB and Express routes.
+There is testing for express routes and DynamoDB
 
 1. Run all tests:
    ```
@@ -70,27 +70,84 @@ The app has testing for both DynamoDB and Express routes.
 
 Coverage reports will be generated in the `coverage` directory
 
-### API Endpoints
+### Setting Up Tests with AWS Endpoints
 
-#### Health check to ensure API working
-```
-GET /health
-Response: { "status": "ok" }
-```
+To run tests that work with AWS and DynamoDB, you'll need to set up the environment in the tests (SEE esg.test.js or app.test.js for examples):
 
-#### Get ESG Data by Ticker (see data.csv for ticker)
-```
-GET /api/esg/:ticker
-Response: {
-    "ticker": "dis",
-    "name": "Disney",
-    "total_score": 85,
-    "environment_score": 82,
-    "social_score": 88,
-    "governance_score": 85,
-    ...
-}
-```
+1. **Mock AWS SDK**
+   ```javascript
+   // In your test file
+   jest.mock('aws-sdk', () => {
+       const mockDynamoDb = {
+           query: jest.fn().mockReturnThis(),
+           promise: jest.fn()
+       };
+       return {
+           DynamoDB: {
+               DocumentClient: jest.fn(() => mockDynamoDb)
+           },
+           config: {
+               update: jest.fn()
+           }
+       };
+   });
+   ```
+
+2. **Environment Setup**
+   ```javascript
+   describe('Your Test Suite', () => {
+       let originalEnv;
+
+       beforeEach(() => {
+           // Store original environment
+           originalEnv = process.env;
+           process.env = { ...originalEnv };
+           // Clear all mock data
+           jest.clearAllMocks();
+       });
+
+       afterEach(() => {
+           // Restore original environment
+           process.env = originalEnv;
+       });
+   });
+   ```
+
+3. **Mock DynamoDB Responses**
+   ```javascript
+   test('your test case', async () => {
+       const mockResponse = {
+           Items: [{
+               ticker: 'dis',
+               name: 'Walt Disney Co',
+               // ... other fields
+           }]
+       };
+
+       const dynamoDb = new AWS.DynamoDB.DocumentClient();
+       dynamoDb.promise.mockResolvedValue(mockResponse);
+
+       // Your test code here
+   });
+   ```
+
+4. **Testing Different Environments**
+   - For local development:
+     ```javascript
+     process.env.NODE_ENV = 'development';
+     process.env.DYNAMODB_ENDPOINT = 'http://localhost:8000';
+     process.env.AWS_ACCESS_KEY_ID = 'local';
+     process.env.AWS_SECRET_ACCESS_KEY = 'local';
+     ```
+   - For production:
+     ```javascript
+     process.env.NODE_ENV = 'production';
+     ```
+
+Remember to:
+- Mock AWS SDK before importing app
+- Reset environment variables after each test
+- Provide mock responses for DynamoDB queries
 
 ### Development Workflow
 

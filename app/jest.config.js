@@ -12,7 +12,8 @@ const config = {
   collectCoverageFrom: [
     'express/src/**/*.js',
     '!**/node_modules/**',
-    '!**/vendor/**'
+    '!**/vendor/**',
+    '!express/src/server.js'
   ]
 };
 
