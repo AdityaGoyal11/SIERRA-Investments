@@ -38,10 +38,10 @@ const scoreSearchRoutes = require('./routes/score-search');
 
 // Mount routes
 app.use('/api/esg', esgRoutes);
-app.use('/api/search/company', companySearchRoutes);  // Adi's routes
-app.use('/api/esg', esgDataRoutes);                  // John's routes
-app.use('/api/search/level', levelSearchRoutes);     // Kosar's routes
-app.use('/api/search/score', scoreSearchRoutes);     // Annie's routes
+app.use('/api/search/company', companySearchRoutes); // Adi's routes
+app.use('/api/esg', esgDataRoutes); // John's routes
+app.use('/api/search/level', levelSearchRoutes); // Kosar's routes
+app.use('/api/search/score', scoreSearchRoutes); // Annie's routes
 
 // Check if server online
 app.get('/health', (req, res) => {

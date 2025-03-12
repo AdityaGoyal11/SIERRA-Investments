@@ -6,6 +6,11 @@ const router = express.Router();
 // Set up our connection to DynamoDB
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
+// Root ESG endpoint
+router.get('/', (req, res) => {
+    res.json({ message: 'ESG endpoint placeholder' });
+});
+
 // When someone wants to get ESG data for a specific company (like /api/esg/dis for Disney)
 router.get('/:ticker', async (req, res) => {
     // Get the ticker from the URL ('dis' from /api/esg/dis)
@@ -24,12 +29,16 @@ router.get('/:ticker', async (req, res) => {
         // Sorts the dynamodb data in descending order
         ScanIndexForward: false,
         // Limits the number of results to 1
-        Limit: 1 
+        Limit: 1
 
-        // Note: The ScanIndexForward and Limit is used because everytime the data is processed, it is added to the end of the table
-        // So we end up with multiple entries for the same ticker (one for each time the data was processed)
-        // This is why we sort in descending (most recent) and limit it to retrieve the most recent entry (1 entry)
-        // Look at the photo I sent on discord in #screenshots with the title "esg_processed table"
+        // Note: The ScanIndexForward and Limit is used because everytime the
+        // data is processed, it is added to the end of the table
+        // So we end up with multiple entries for the same ticker
+        // (one for each time the data was processed)
+        // This is why we sort in descending (most recent) and limit
+        // it to retrieve the most recent entry (1 entry)
+        // Look at the photo I sent on discord in #screenshots with
+        // the title "esg_processed table"
     };
 
     try {
