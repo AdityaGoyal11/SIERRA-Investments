@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 22
+          node-version: 22 # Current LTS version
 
       - name: Install Dependencies
         run: npm install
@@ -25,3 +25,8 @@ jobs:
       - name: Run Jest Tests
         run: npm test
         working-directory: ./app
+        env:
+          NODE_ENV: test
+          AWS_ACCESS_KEY_ID: fake-key
+          AWS_SECRET_ACCESS_KEY: fake-secret
+          DYNAMODB_ENDPOINT: http://localhost:8000
