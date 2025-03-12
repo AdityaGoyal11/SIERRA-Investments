@@ -1,15 +1,32 @@
 version: '3.8'
 
 services:
+  dynamodb-local:
+    image: amazon/dynamodb-local
+    ports:
+      - "8000:8000"
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    volumes:
+      - "./docker/dynamodb:/home/dynamodblocal/data"
+    working_dir: /home/dynamodblocal
+
   api:
-    build: 
+    build:
       context: ./app
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=development
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+      - DYNAMODB_ENDPOINT=http://dynamodb-local:8000
     volumes:
       - ./app:/usr/src/app
       - /usr/src/app/node_modules
-    command: npm run dev 
+    command: >
+      sh -c "node scripts/init-dynamodb.js &&
+             node scripts/seed-dynamodb.js &&
+             npm run dev"
+    depends_on:
+      - dynamodb-local 
