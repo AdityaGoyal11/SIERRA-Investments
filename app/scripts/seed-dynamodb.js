@@ -14,51 +14,83 @@ const dynamodb = new AWS.DynamoDB.DocumentClient({
 // Our test data (exact same as data.csv and the processed data in DynamoDB)
 const sampleData = [
     {
-        // Disney's stock symbol
         ticker: 'dis',
-        // Current time
         timestamp: new Date().toISOString(),
-        name: 'Disney',
-        // Overall ESG score
-        total_score: 85,
-        // How well they treat the planet
-        environment_score: 82,
-        // How well they treat people
-        social_score: 88,
-        // How well they run the company
-        governance_score: 85,
-        // Letter grade for environment
+        name: 'Walt Disney Co',
+        total_score: 1147,
+        environment_score: 510,
+        social_score: 316,
+        governance_score: 321,
         environment_grade: 'A',
-        // Letter grade for social
-        social_grade: 'A+',
-        // Letter grade for governance
-        governance_grade: 'A',
-        // Their environmental ranking
-        environment_level: 'Leader',
-        // Their social ranking
-        social_level: 'Leader',
-        // Their governance ranking
-        governance_level: 'Leader'
+        social_grade: 'BB',
+        governance_grade: 'BB',
+        environment_level: 'High',
+        social_level: 'Medium',
+        governance_level: 'Medium'
     },
     {
-        // Albemarle stock symbol
-        ticker: 'alb',
+        ticker: 'aapl',
         timestamp: new Date().toISOString(),
-        name: 'Albemarle Corporation',
-        total_score: 78,
-        environment_score: 75,
-        social_score: 80,
-        governance_score: 79,
-        environment_grade: 'B+',
-        social_grade: 'A-',
-        governance_grade: 'B+',
-        environment_level: 'Advanced',
-        social_level: 'Leader',
-        governance_level: 'Advanced'
+        name: 'Apple Inc',
+        total_score: 891,
+        environment_score: 355,
+        social_score: 281,
+        governance_score: 255,
+        environment_grade: 'BB',
+        social_grade: 'B',
+        governance_grade: 'B',
+        environment_level: 'Medium',
+        social_level: 'Medium',
+        governance_level: 'Medium'
+    },
+    {
+        ticker: 'gm',
+        timestamp: new Date().toISOString(),
+        name: 'General Motors Co',
+        total_score: 1068,
+        environment_score: 510,
+        social_score: 303,
+        governance_score: 255,
+        environment_grade: 'A',
+        social_grade: 'BB',
+        governance_grade: 'B',
+        environment_level: 'High',
+        social_level: 'Medium',
+        governance_level: 'Medium'
+    },
+    {
+        ticker: 'gww',
+        timestamp: new Date().toISOString(),
+        name: 'WW Grainger Inc',
+        total_score: 880,
+        environment_score: 255,
+        social_score: 385,
+        governance_score: 240,
+        environment_grade: 'B',
+        social_grade: 'BB',
+        governance_grade: 'B',
+        environment_level: 'Medium',
+        social_level: 'Medium',
+        governance_level: 'Medium'
+    },
+    {
+        ticker: 'mhk',
+        timestamp: new Date().toISOString(),
+        name: 'Mohawk Industries Inc',
+        total_score: 1171,
+        environment_score: 570,
+        social_score: 298,
+        governance_score: 303,
+        environment_grade: 'A',
+        social_grade: 'B',
+        governance_grade: 'BB',
+        environment_level: 'High',
+        social_level: 'Medium',
+        governance_level: 'Medium'
     }
 ];
 
-// Function to add our sample data to the database
+// Function to add our sample data to the local DynamoDB database
 const seedData = async () => {
     console.log('Starting to add sample data...');
 

@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
 
-// Set up connection to our local DynamoDB
+// Set up connection to our local DynamoDB (running in Docker container 'dynamodb-local' on port 8000)
 const dynamodb = new AWS.DynamoDB({
     region: 'us-east-1',
     // Our local DynamoDB address
@@ -23,12 +23,12 @@ const params = {
         // Secondary lookup key
         { AttributeName: 'timestamp', KeyType: 'RANGE' }
     ],
-    AttributeDefinitions: [
+    AttributeDefinitions: [      
         // Define our columns
         // ticker is a string
-        { AttributeName: 'ticker', AttributeType: 'S' },
+        { AttributeName: 'ticker', AttributeType: 'S' },    
         // timestamp is a string
-        { AttributeName: 'timestamp', AttributeType: 'S' },
+        { AttributeName: 'timestamp', AttributeType: 'S' }, 
         // total_score is a number
         { AttributeName: 'total_score', AttributeType: 'N' }
     ],
@@ -36,9 +36,9 @@ const params = {
         // Searching data using secondary index/attributes which isnt ticker or timestamp
         {
             // Name of this view
-            IndexName: 'ScoreIndex',
+            IndexName: 'ScoreIndex',        
             // How to organize this view
-            KeySchema: [
+            KeySchema: [                    
                 { AttributeName: 'total_score', KeyType: 'HASH' },
                 { AttributeName: 'timestamp', KeyType: 'RANGE' }
             ],
@@ -77,5 +77,4 @@ const createTable = async () => {
     }
 };
 
-// Run our table creation function
-createTable();
+createTable(); 

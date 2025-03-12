@@ -13,14 +13,23 @@ router.get('/:ticker', async (req, res) => {
 
     // Set up our database query (search request)
     const params = {
-        // Look in this table
+        // Look in the esg_processed table in DynamoDB (both AWS and local)
         TableName: 'esg_processed',
         // Find where ticker matches
         KeyConditionExpression: 'ticker = :ticker',
         // The ticker we're looking for
         ExpressionAttributeValues: {
             ':ticker': ticker
-        }
+        },
+        // Sorts the dynamodb data in descending order
+        ScanIndexForward: false,
+        // Limits the number of results to 1
+        Limit: 1 
+
+        // Note: The ScanIndexForward and Limit is used because everytime the data is processed, it is added to the end of the table
+        // So we end up with multiple entries for the same ticker (one for each time the data was processed)
+        // This is why we sort in descending (most recent) and limit it to retrieve the most recent entry (1 entry)
+        // Look at the photo I sent on discord in #screenshots with the title "esg_processed table"
     };
 
     try {
@@ -39,11 +48,6 @@ router.get('/:ticker', async (req, res) => {
         console.error('Error:', error);
         res.status(500).json({ message: 'Error fetching ESG data', error: error.message });
     }
-});
-
-// Request to get ALL ESG data (dd this feature later)
-router.get('/', (req, res) => {
-    res.json({ message: 'ESG endpoint placeholder' });
 });
 
 module.exports = router;
