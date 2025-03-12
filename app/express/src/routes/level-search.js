@@ -1,14 +1,12 @@
 const express = require('express');
-const AWS = require('aws-sdk');
 
 const router = express.Router();
-const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 /**
  * @route GET /api/search/level/:type
  * @description Search companies based on their ESG levels
  * @assigned Kosar
- * 
+ *
  * TODO MVP:
  * - Implement search by total level
  * - Implement search by environmental level
@@ -20,22 +18,21 @@ const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 // Search by total level
 router.get('/total', async (req, res) => {
-    // TODO: Implement total level search
+    // TODO: Implement total level search functionality
 });
 
 // Search by environmental level
 router.get('/environmental', async (req, res) => {
-    // TODO: Implement environmental level search
+    // TODO: Implement environmental level search functionality
 });
 
 // Search by social level
 router.get('/social', async (req, res) => {
-    // TODO: Implement social level search
+    // TODO: Implement social level search functionality
 });
 
 // Search by governance level
 router.get('/governance', async (req, res) => {
-    // TODO: Implement governance level search
+    // TODO: Implement governance level search functionality
 });
-
-module.exports = router; 
+module.exports = router;
