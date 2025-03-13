@@ -122,7 +122,7 @@ describe('ESG Data Tests', () => {
         });
 
         test('Disney (DIS) should have correct ESG metrics', async () => {
-            // Mock the complete ESG data response
+            // Mock the entire ESG data response
             const mockResponse = {
                 Items: [{
                     ticker: 'dis',
@@ -185,8 +185,4 @@ describe('ESG Data Tests', () => {
     });
 
     // TODO: Add API endpoint tests
-    // - Use supertest to test Express endpoints
-    // - Mock DynamoDB responses
-    // - Test success and error cases
-    // - Test input validation
 });
