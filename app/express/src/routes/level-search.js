@@ -24,7 +24,7 @@ async function getUniqueCompanies(params) {
                 }
             });
 
-            // Return unique company records
+            // Return last unique company records
             return Object.values(uniqueCompanies);
         } else {
             return [];
@@ -93,10 +93,16 @@ router.get('/total_level/:level', async (req, res) => {
 router.get("/:levelType/:level", async (req, res) => {
     const { levelType, level } = req.params;
 
-    // Ensure valid level type
-    const validLevels = ["environment_level", "social_level", "governance_level"];
-    if (!validLevels.includes(levelType)) {
-        return res.status(400).json({ message: "Invalid level type. Choose from: environment_level, social_level, governance_level." });
+    // Ensure valid level category
+    const validCat = ["environment_level", "social_level", "governance_level"];
+    if (!validCat.includes(levelType)) {
+        return res.status(500).json({ message: "Invalid level type. Choose from: environment_level, social_level, governance_level." });
+    }
+
+    // Ensure level is valid
+    validLevels = ["High", "Medium", "Low"];
+    if (!validLevels.includes(level)) {
+        return res.status(500).json({ message: "Invalid level value. Choose from: High, Medium, Low." });
     }
 
     // Query parameters for levels
@@ -127,18 +133,4 @@ router.get("/:levelType/:level", async (req, res) => {
     }
 });
 
-// Search by environmental level
-router.get('/environmental', async (req, res) => {
-    // TODO: Implement environmental level search functionality
-});
-
-// Search by social level
-router.get('/social', async (req, res) => {
-    // TODO: Implement social level search functionality
-});
-
-// Search by governance level
-router.get('/governance', async (req, res) => {
-    // TODO: Implement governance level search functionality
-});
 module.exports = router;
