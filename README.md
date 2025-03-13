@@ -53,6 +53,39 @@ This will:
 - Seed (seed/seeding is just populating the local DynamoDB with sample data) sample ESG data
 - Start the Express API server
 
+### Setting Up with Existing Infrastructure
+
+If have an existing project where infrastructure is already set up:
+
+1. First, stop any running Docker containers:
+   ```
+   docker-compose down
+   ```
+
+2. Initialize Terraform (but don't apply yet):
+   ```
+   cd infra
+   terraform init
+   ```
+
+3. Start the local development environment:
+   ```
+   cd ..
+   docker-compose up --build
+   ```
+
+4. Test the local setup:
+   ```
+   cd app
+   npm test
+   ```
+
+### Important Notes
+- Do NOT run `terraform destroy` unless you want to completely remove all AWS resources
+- The local development environment (Docker) is separate from the AWS infrastructure
+- You can develop and test locally without affecting the production environment
+- If you need to deploy changes to AWS, use `terraform apply` in the `infra` directory
+
 ### Testing
 
 There is testing for express routes and DynamoDB
@@ -200,9 +233,8 @@ The test suite is configured to work with the local DynamoDB instance:
   - Sort Key: `timestamp` (String)
 
 ### Sample Data
-The local environment comes pre-seeded with sample ESG data for:
-- Disney (DIS)
-- Albemarle Corporation (ALB)
+The local environment comes sample ESG data for S&P 500 companies with ESG values from 2014-CURRENT.
+- Data is automatically seeded from local csv file
 
 ## Next Steps
 - Add more test cases for edge cases
