@@ -5,6 +5,14 @@ import io
 from datetime import datetime
 import pytz
 
+def is_valid_row(row):
+    # Check if a row has all required scores
+    required_fields = ['total_score', 'environment_score', 'social_score', 'governance_score']
+    try:
+        return all(pd.notna(row[field]) for field in required_fields)
+    except KeyError:
+        return False
+
 def handler(event, context):
     try:
         # Initialize AWS clients
@@ -21,36 +29,39 @@ def handler(event, context):
         csv_content = response['Body'].read().decode('utf-8')
         df = pd.read_csv(io.StringIO(csv_content))
         
+        # Filter out rows with missing scores
+        df = df[df.apply(is_valid_row, axis=1)]
+        
+        # Get current timestamp for processing date if not in CSV
+        current_time = datetime.now(pytz.UTC).isoformat()
+        
         # Process each row and write to DynamoDB
         with table.batch_writer() as batch:
             for _, row in df.iterrows():
-                # Create timestamp in ISO format with timezone
-                current_time = datetime.now(pytz.UTC).isoformat()
-                
-                # Process and format the data
-                item = {
-                    'ticker': str(row['ticker']),
-                    'timestamp': current_time,
-                    'name': str(row['name']),
-                    'total_score': int(row['total_score']),
-                    'environment_score': int(row['environment_score']),
-                    'social_score': int(row['social_score']),
-                    'governance_score': int(row['governance_score']),
-                    'environment_grade': str(row['environment_grade']),
-                    'social_grade': str(row['social_grade']),
-                    'governance_grade': str(row['governance_grade']),
-                    'environment_level': str(row['environment_level']),
-                    'social_level': str(row['social_level']),
-                    'governance_level': str(row['governance_level'])
-                }
-                
-                # Write to DynamoDB using batch writer
-                batch.put_item(Item=item)
-                print(f"Processed and stored data for ticker: {item['ticker']}")
+                try:
+                    # Process and format the data
+                    item = {
+                        'ticker': str(row['ticker']).lower(),
+                        'timestamp': str(row['timestamp']),
+                        'last_processed_date': str(row.get('last_processing_date', current_time)),
+                        'total_score': int(float(row['total_score'])),
+                        'environmental_score': int(float(row['environment_score'])),
+                        'social_score': int(float(row['social_score'])),
+                        'governance_score': int(float(row['governance_score']))
+                    }
+                    
+                    # Write to DynamoDB using batch writer
+                    batch.put_item(Item=item)
+                    print(f"Processed and stored data for ticker: {item['ticker']}, timestamp: {item['timestamp']}")
+                except (KeyError, ValueError) as e:
+                    print(f"Error processing row: {row}")
+                    print(f"Error details: {str(e)}")
+                    continue
         
+        processed_count = len(df)
         return {
             'statusCode': 200,
-            'body': json.dumps(f'Successfully processed {len(df)} rows and stored in DynamoDB')
+            'body': json.dumps(f'Successfully processed {processed_count} valid rows and stored in DynamoDB')
         }
         
     except Exception as e:

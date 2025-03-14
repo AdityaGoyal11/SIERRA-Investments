@@ -31,7 +31,15 @@ const params = {
         // timestamp is a string
         { AttributeName: 'timestamp', AttributeType: 'S' },
         // total_score is a number
-        { AttributeName: 'total_score', AttributeType: 'N' }
+        { AttributeName: 'total_score', AttributeType: 'N' },
+        // environmental_score is a number
+        { AttributeName: 'environmental_score', AttributeType: 'N' },
+        // social_score is a number
+        { AttributeName: 'social_score', AttributeType: 'N' },
+        // governance_score is a number
+        { AttributeName: 'governance_score', AttributeType: 'N' },
+        // last_processed_date is a string
+        { AttributeName: 'last_processed_date', AttributeType: 'S' }
     ],
     GlobalSecondaryIndexes: [
         // Searching data using secondary index/attributes which isnt ticker or timestamp
@@ -48,6 +56,20 @@ const params = {
                 ProjectionType: 'ALL'
             },
             // How much power this view needs
+            ProvisionedThroughput: {
+                ReadCapacityUnits: 5,
+                WriteCapacityUnits: 5
+            }
+        },
+        {
+            IndexName: 'DateIndex',
+            KeySchema: [
+                { AttributeName: 'last_processed_date', KeyType: 'HASH' },
+                { AttributeName: 'ticker', KeyType: 'RANGE' }
+            ],
+            Projection: {
+                ProjectionType: 'ALL'
+            },
             ProvisionedThroughput: {
                 ReadCapacityUnits: 5,
                 WriteCapacityUnits: 5

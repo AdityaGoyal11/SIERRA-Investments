@@ -101,22 +101,28 @@ describe('Testing express/src/app.js', () => {
             expect(response.status).toBe(200);
         });
 
-        test('should return 200 for valid ticker', async () => {
+        test('should return historical ESG data for valid ticker', async () => {
             const mockResponse = {
-                Items: [{
-                    ticker: 'dis',
-                    name: 'Walt Disney Co',
-                    environment_score: 510,
-                    social_score: 316,
-                    governance_score: 321,
-                    total_score: 1147,
-                    environment_grade: 'A',
-                    social_grade: 'BB',
-                    governance_grade: 'BB',
-                    environment_level: 'High',
-                    social_level: 'Medium',
-                    governance_level: 'Medium'
-                }]
+                Items: [
+                    {
+                        ticker: 'dis',
+                        timestamp: '2024-03-12',
+                        last_processed_date: '2024-03-12',
+                        total_score: 85,
+                        environmental_score: 80,
+                        social_score: 90,
+                        governance_score: 85
+                    },
+                    {
+                        ticker: 'dis',
+                        timestamp: '2023-03-12',
+                        last_processed_date: '2023-03-12',
+                        total_score: 82,
+                        environmental_score: 78,
+                        social_score: 88,
+                        governance_score: 80
+                    }
+                ]
             };
 
             const dynamoDb = new AWS.DynamoDB.DocumentClient();
@@ -127,6 +133,9 @@ describe('Testing express/src/app.js', () => {
             expect(response.status).toBe(200);
             expect(response.body).toBeDefined();
             expect(response.body.ticker).toBe('dis');
+            expect(response.body.historical_ratings).toHaveLength(2);
+            expect(response.body.historical_ratings[0].timestamp).toBe('2024-03-12');
+            expect(response.body.historical_ratings[1].timestamp).toBe('2023-03-12');
         });
 
         test('should return 404 for non-existent ticker', async () => {
