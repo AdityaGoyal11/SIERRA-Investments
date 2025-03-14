@@ -12,6 +12,72 @@ def is_valid_row(row):
         return all(pd.notna(row[field]) for field in required_fields)
     except KeyError:
         return False
+    
+def parse_timestamp(ts_str):
+
+    # Parse a timestamp that can be either in full format with time or a simple date.
+
+    try:
+        # If the timestamp has a 'T', assume full format with ms and a 'Z'
+        if "T" in ts_str:
+            # "2025-03-13T06:33:19.812Z"
+            dt = datetime.strptime(ts_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+            # Make it timezone-aware in UTC
+            return dt.replace(tzinfo=pytz.UTC)
+        else:
+            # Otherwise, a simple date format like "1/11/2024" or "2024-01-11"
+            try:
+                dt = datetime.strptime(ts_str, "%m/%d/%Y")
+            except ValueError:
+                # "YYYY-MM-DD"
+                dt = datetime.strptime(ts_str, "%Y-%m-%d")
+            return pytz.UTC.localize(dt)
+    except Exception as e:
+        print(f"Error parsing timestamp: {ts_str}: {e}")
+        raise e
+    
+def clear_pre_2020_data(table):
+
+    # Scan and delete items with a timestamp before 2020-01-01.
+
+    cutoff_date = datetime(2020, 1, 1, tzinfo=pytz.UTC)
+    print(f"Deleting items with timestamp before {cutoff_date.isoformat()}...")
+    
+    # Scan the table
+    scan = {}
+    items_to_delete = []
+    
+    while True:
+        response = table.scan(**scan)
+        for item in response.get('Items', []):
+            try:
+                item_timestamp = parse_timestamp(item['timestamp'])
+
+                if item_timestamp < cutoff_date:
+                    items_to_delete.append(item)
+            except Exception as e:
+                print(f"Error parsing timestamp for item {item}: {e}")
+
+        # Check if there are more items to scan
+        if 'lastKey' in response:
+            scan['startKey'] = response['lastKey']
+        else:
+            break
+
+    print(f"Found {len(items_to_delete)} items to delete.")
+
+    # Delete the found items
+    with table.batch_writer() as batch:
+        for item in items_to_delete:
+
+            # primary key is 'ticker' and 'timestamp'
+            batch.delete_item(
+                Key={
+                    'ticker': item['ticker'],
+                    'timestamp': item['timestamp']
+                }
+            )
+    print(f"Deleted {len(items_to_delete)} items.")
 
 def handler(event, context):
     try:
@@ -19,7 +85,10 @@ def handler(event, context):
         s3 = boto3.client('s3')
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table('esg_processed')
-        
+
+        # First, clear old data (pre-2020)
+        clear_pre_2020_data(table)
+
         # Get bucket and key from the S3 event
         bucket = event['Records'][0]['s3']['bucket']['name']
         key = event['Records'][0]['s3']['object']['key']
