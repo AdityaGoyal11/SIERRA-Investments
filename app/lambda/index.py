@@ -79,6 +79,29 @@ def clear_pre_2020_data(table):
             )
     print(f"Deleted {len(items_to_delete)} items.")
 
+def rating(total_score):
+    """
+    Given a total_score, returns the rating:
+      0-10  --> 'A'
+      10-20 --> 'B'
+      20-30 --> 'C'
+      30-40 --> 'D'
+      40+ --> 'E'
+    """
+
+    total_score = float(total_score)
+    
+    if total_score < 10:
+        return 'A'
+    elif total_score < 20:
+        return 'B'
+    elif total_score < 30:
+        return 'C'
+    elif total_score < 40:
+        return 'D'
+    else:
+        return 'E'
+
 def handler(event, context):
     try:
         # Initialize AWS clients
@@ -116,7 +139,8 @@ def handler(event, context):
                         'total_score': int(float(row['total_score'])),
                         'environmental_score': int(float(row['environment_score'])),
                         'social_score': int(float(row['social_score'])),
-                        'governance_score': int(float(row['governance_score']))
+                        'governance_score': int(float(row['governance_score'])),
+                        'rating': rating(row['total_score'])
                     }
                     
                     # Write to DynamoDB using batch writer
