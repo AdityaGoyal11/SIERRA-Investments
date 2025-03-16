@@ -33,7 +33,7 @@ router.get('/all', async (req, res) => {
         }
 
         else {
-            res.status(404).json({ message: `No ESG data found for ticker: ${ticker}` });
+            res.status(404).json({ message: `No ESG data found` });
         }
     } catch (error) {
         console.error('Error:', error);
