@@ -4,6 +4,7 @@ import pandas as pd
 import io
 from datetime import datetime
 import pytz
+from dateutil import parser
 
 def is_valid_row(row):
     # Check if a row has all required scores
@@ -13,6 +14,51 @@ def is_valid_row(row):
     except KeyError:
         return False
     
+def format_timestamp(ts):
+    if not ts:
+        return datetime.now().strftime('%Y-%m-%d')  # Default if missing
+    try:
+        return parser.parse(str(ts)).strftime('%Y-%m-%d')
+    except Exception as e:
+        print(f"Warning: Invalid timestamp {ts}, defaulting to current date.")
+        return datetime.now().strftime('%Y-%m-%d')
+    
+def rating(total_score):
+
+    total_score = float(total_score)
+    
+    if total_score < 10:
+        return 'A'
+    elif total_score < 20:
+        return 'B'
+    elif total_score < 30:
+        return 'C'
+    elif total_score < 40:
+        return 'D'
+    else:
+        return 'E'
+    
+lambda_client = boto3.client("lambda")
+
+def invoke_lambda_again(bucket, key):
+    # Triggers Lambda for remaining data
+    payload = {
+        "Records": [
+            {
+                "s3": {
+                    "bucket": {"name": bucket},
+                    "object": {"key": key}
+                }
+            }
+        ]
+    }
+    response = lambda_client.invoke(
+        FunctionName="esg-etl-lambda",
+        InvocationType="Event",  # Runs asynchronously
+        Payload=json.dumps(payload)
+    )
+    print("Lambda invoked again:", response)
+
 def parse_timestamp(ts_str):
 
     # Parse a timestamp that can be either in full format with time or a simple date.
@@ -59,8 +105,9 @@ def clear_pre_2020_data(table):
                 print(f"Error parsing timestamp for item {item}: {e}")
 
         # Check if there are more items to scan
-        if 'lastKey' in response:
-            scan['startKey'] = response['lastKey']
+        if 'LastEvaluatedKey' in response:
+            scan['ExclusiveStartKey'] = response['LastEvaluatedKey']
+
         else:
             break
 
@@ -78,29 +125,6 @@ def clear_pre_2020_data(table):
                 }
             )
     print(f"Deleted {len(items_to_delete)} items.")
-
-def rating(total_score):
-    """
-    Given a total_score, returns the rating:
-      0-10  --> 'A'
-      10-20 --> 'B'
-      20-30 --> 'C'
-      30-40 --> 'D'
-      40+ --> 'E'
-    """
-
-    total_score = float(total_score)
-    
-    if total_score < 10:
-        return 'A'
-    elif total_score < 20:
-        return 'B'
-    elif total_score < 30:
-        return 'C'
-    elif total_score < 40:
-        return 'D'
-    else:
-        return 'E'
 
 def handler(event, context):
     try:
@@ -126,31 +150,48 @@ def handler(event, context):
         
         # Get current timestamp for processing date if not in CSV
         current_time = datetime.now(pytz.UTC).isoformat()
+
+        # Process data in batches
+        batch_size = 500  # Limit to 500 items per Lambda execution
+        total_rows = len(df)
+        print(f"Processing {total_rows} rows...")
         
-        # Process each row and write to DynamoDB
-        with table.batch_writer() as batch:
-            for _, row in df.iterrows():
-                try:
-                    # Process and format the data
-                    item = {
-                        'ticker': str(row['ticker']).lower(),
-                        'timestamp': str(row['timestamp']),
-                        'last_processed_date': str(row.get('last_processing_date', current_time)),
-                        'total_score': int(float(row['total_score'])),
-                        'environmental_score': int(float(row['environment_score'])),
-                        'social_score': int(float(row['social_score'])),
-                        'governance_score': int(float(row['governance_score'])),
-                        'rating': rating(row['total_score'])
-                    }
+        for start in range(0, total_rows, batch_size):
+            batch_df = df.iloc[start:start + batch_size]
+            # Process each row and write to DynamoDB
+            with table.batch_writer() as batch:
+                for _, row in batch_df.iterrows():
+                    try:
+                        # Process and format the data
+
+                        # zero if missing
+                        total_score = float(row.get('total_score', 0)) 
                     
-                    # Write to DynamoDB using batch writer
-                    batch.put_item(Item=item)
-                    print(f"Processed and stored data for ticker: {item['ticker']}, timestamp: {item['timestamp']}")
-                except (KeyError, ValueError) as e:
-                    print(f"Error processing row: {row}")
-                    print(f"Error details: {str(e)}")
-                    continue
-        
+                        item = {
+                            'ticker': str(row['ticker']).lower(),
+                            'timestamp': format_timestamp(row['timestamp']),
+                            'last_processed_date': str(row.get('last_processing_date', current_time)),
+                            'total_score': int(total_score),
+                            'environmental_score': int(float(row['environment_score'])),
+                            'social_score': int(float(row['social_score'])),
+                            'governance_score': int(float(row['governance_score'])),
+                            'rating': rating(total_score)
+                        }
+                    
+                        # Write to DynamoDB using batch writer
+                        batch.put_item(Item=item)
+                        print(f"Processed and stored data for ticker: {item['ticker']}, timestamp: {item['timestamp']}")
+                    except (KeyError, ValueError) as e:
+                        print(f"Error processing row: {row}")
+                        print(f"Error details: {str(e)}")
+                        continue
+
+            print(f"Processed and stored {len(batch_df)} rows.")
+
+        # If more data remains, re-trigger Lambda for the next batch
+        if start + batch_size < total_rows:
+            invoke_lambda_again(bucket, key)
+
         processed_count = len(df)
         return {
             'statusCode': 200,
