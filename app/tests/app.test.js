@@ -162,5 +162,52 @@ describe('Testing express/src/app.js', () => {
             expect(response.status).toBe(500);
             expect(response.body).toEqual({ message: 'Error fetching ESG data', error: error.message });
         });
+
+        test('should return all ESG data', async () => {
+            const mockResponse = {
+                Items: [
+                    {
+                        ticker: 'dis',
+                        timestamp: '2024-03-12',
+                        last_processed_date: '2024-03-12',
+                        total_score: 85,
+                        environmental_score: 80,
+                        social_score: 90,
+                        governance_score: 85
+                    },
+                    {
+                        ticker: 'dis',
+                        timestamp: '2023-03-12',
+                        last_processed_date: '2023-03-12',
+                        total_score: 82,
+                        environmental_score: 78,
+                        social_score: 88,
+                        governance_score: 80
+                    }
+                ]
+            };
+
+            const dynamoDb = new AWS.DynamoDB.DocumentClient();
+            dynamoDb.promise.mockResolvedValue(mockResponse);
+
+            const response = await request(app).get('/api/esg/all');
+            
+            expect(response.status).toBe(200);
+            expect(response.body).toBeDefined();
+            expect(response.body).tobe('object');
+        });
+
+        test('should return 500 for DynamoDB error', async () => {
+            const dynamoDb = new AWS.DynamoDB.DocumentClient();
+            const error = new Error('DynamoDB error');
+            dynamoDb.promise.mockRejectedValue(error);
+
+            const response = await request(app).get('/api/all');
+            
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({ message: 'Error fetching ESG data', error: error.message });
+        });
+
+
     });
 });
