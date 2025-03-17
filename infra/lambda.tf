@@ -11,7 +11,6 @@ resource "aws_lambda_function" "esg_etl" {
   memory_size   = 256
   
   layers = [
-    # AWS-provided pandas layer
     "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python39:9"
   ]
   
@@ -22,7 +21,7 @@ resource "aws_lambda_function" "esg_etl" {
   }
 }
 
-# Grant permission for S3 to invoke your Lambda function
+# Allow s3 to call lambda function
 resource "aws_lambda_permission" "allow_s3" {
   statement_id  = "AllowS3Invoke"
   action        = "lambda:InvokeFunction"

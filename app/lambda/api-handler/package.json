@@ -1,0 +1,9 @@
+{
+  "name": "sierra-api-handler",
+  "version": "1.0.0",
+  "description": "SIERRA Investments API Lambda Handler",
+  "main": "index.js",
+  "dependencies": {
+    "aws-sdk": "^2.1569.0"
+  }
+} 

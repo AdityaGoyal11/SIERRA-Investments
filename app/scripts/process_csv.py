@@ -3,9 +3,9 @@ from datetime import datetime
 from dateutil import parser
 import os
 
-# update csv file locally
-csv_filename = os.path.abspath("../data/historical_esg_data.csv")
-
+script_dir = os.path.dirname(os.path.abspath(__file__))
+app_dir = os.path.dirname(script_dir)
+csv_filename = os.path.join(app_dir, "data", "historical_esg_data.csv")
 
 def is_valid_row(row):
     required_fields = ['total_score', 'environment_score', 'social_score', 'governance_score']
@@ -38,8 +38,8 @@ def rating(total_score):
         return 'E'
 
 def process_csv_file(csv_file):
-
     """Process the entire CSV file: remove pre-2020 data, add rating column."""
+    print(f"Processing CSV file: {csv_file}")
 
     df = pd.read_csv(csv_file)
 
@@ -63,14 +63,13 @@ def process_csv_file(csv_file):
     print(df.head(10))
 
     # Save the cleaned CSV file
-    #output_file = "processed_" + csv_file
-    output_directory = "processed_data"
+    output_directory = os.path.join(app_dir, "processed_data")
     os.makedirs(output_directory, exist_ok=True)
-    output_file = os.path.join(output_directory, "processed_" + os.path.basename(csv_file))
+    output_file = os.path.join(output_directory, "processed_historical_esg_data.csv")
+    print(f"Saving processed CSV to: {output_file}")
 
     df.to_csv(output_file, index=False)
-    print(f"Processed CSV file saved as: {output_file}")
-
+    print(f"Processed CSV file saved successfully")
 
 if __name__ == "__main__":
     process_csv_file(csv_filename)

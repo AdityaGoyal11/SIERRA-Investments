@@ -23,7 +23,7 @@ resource "aws_dynamodb_table" "esg_processed" {
     }
 
     attribute {
-        name = "ratting"
+        name = "rating"
         type = "S"
     }
 
@@ -43,6 +43,13 @@ resource "aws_dynamodb_table" "esg_processed" {
         name = "DateIndex"
         hash_key = "last_processed_date"
         range_key = "ticker"
+        projection_type = "ALL"
+    }
+
+    global_secondary_index {
+        name = "RatingIndex"
+        hash_key = "rating"
+        range_key = "timestamp"
         projection_type = "ALL"
     }
 
