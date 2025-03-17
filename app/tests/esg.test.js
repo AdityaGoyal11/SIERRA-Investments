@@ -24,79 +24,19 @@ describe('ESG Data Tests', () => {
     });
 
     describe('DynamoDB Operations', () => {
-        test('Disney (DIS) should have governance score of 321', async () => {
-            // Mock the DynamoDB response with correct values from data.csv
+        test('LUV should have correct scores and rating', async () => {
+            // Mock the DynamoDB response with correct values from data
             const mockResponse = {
                 Items: [
                     {
-                        ticker: 'dis',
-                        name: 'Walt Disney Co',
-                        environment_score: 510,
-                        social_score: 316,
-                        governance_score: 321,
-                        total_score: 1147,
-                        environment_grade: 'A',
-                        social_grade: 'BB',
-                        governance_grade: 'BB',
-                        environment_level: 'High',
-                        social_level: 'Medium',
-                        governance_level: 'Medium'
-                    },
-                    {
-                        ticker: 'aapl',
-                        name: 'Apple Inc',
-                        environment_score: 355,
-                        social_score: 281,
-                        governance_score: 255,
-                        total_score: 891,
-                        environment_grade: 'BB',
-                        social_grade: 'B',
-                        governance_grade: 'B',
-                        environment_level: 'Medium',
-                        social_level: 'Medium',
-                        governance_level: 'Medium'
-                    },
-                    {
-                        ticker: 'gm',
-                        name: 'General Motors Co',
-                        environment_score: 510,
-                        social_score: 303,
-                        governance_score: 255,
-                        total_score: 1068,
-                        environment_grade: 'A',
-                        social_grade: 'BB',
-                        governance_grade: 'B',
-                        environment_level: 'High',
-                        social_level: 'Medium',
-                        governance_level: 'Medium'
-                    },
-                    {
-                        ticker: 'gww',
-                        name: 'WW Grainger Inc',
-                        environment_score: 255,
-                        social_score: 385,
-                        governance_score: 240,
-                        total_score: 880,
-                        environment_grade: 'B',
-                        social_grade: 'BB',
-                        governance_grade: 'B',
-                        environment_level: 'Medium',
-                        social_level: 'Medium',
-                        governance_level: 'Medium'
-                    },
-                    {
-                        ticker: 'mhk',
-                        name: 'Mohawk Industries Inc',
-                        environment_score: 570,
-                        social_score: 298,
-                        governance_score: 303,
-                        total_score: 1171,
-                        environment_grade: 'A',
-                        social_grade: 'B',
-                        governance_grade: 'BB',
-                        environment_level: 'High',
-                        social_level: 'Medium',
-                        governance_level: 'Medium'
+                        ticker: 'luv',
+                        timestamp: '2024-03-14',
+                        environment_score: 9,
+                        social_score: 13,
+                        governance_score: 5,
+                        total_score: 28,
+                        rating: 'C',
+                        last_processed_date: '2024-03-14'
                     }
                 ]
             };
@@ -106,38 +46,45 @@ describe('ESG Data Tests', () => {
                 TableName: 'esg_processed',
                 KeyConditionExpression: 'ticker = :ticker',
                 ExpressionAttributeValues: {
-                    ':ticker': 'dis'
+                    ':ticker': 'luv'
                 }
             };
 
             const data = await dynamoDb.query(params).promise();
             expect(data.Items).toBeDefined();
             expect(data.Items.length).toBeGreaterThan(0);
-            expect(data.Items[0].governance_score).toBe(321);
-            expect(data.Items).toHaveLength(5);
-            expect(data.Items[1].name).toBe('Apple Inc');
-            expect(data.Items[2].name).toBe('General Motors Co');
-            expect(data.Items[3].name).toBe('WW Grainger Inc');
-            expect(data.Items[4].name).toBe('Mohawk Industries Inc');
+            expect(data.Items[0]).toMatchObject({
+                ticker: 'luv',
+                environment_score: 9,
+                social_score: 13,
+                governance_score: 5,
+                total_score: 28,
+                rating: 'C'
+            });
         });
 
-        test('Disney (DIS) should have correct ESG metrics', async () => {
-            // Mock the entire ESG data response
+        test('Historical data should be ordered by timestamp', async () => {
             const mockResponse = {
-                Items: [{
-                    ticker: 'dis',
-                    name: 'Disney',
-                    environment_score: 82,
-                    social_score: 88,
-                    governance_score: 85,
-                    total_score: 85,
-                    environment_grade: 'A',
-                    social_grade: 'A+',
-                    governance_grade: 'A',
-                    environment_level: 'Leader',
-                    social_level: 'Leader',
-                    governance_level: 'Leader'
-                }]
+                Items: [
+                    {
+                        ticker: 'luv',
+                        timestamp: '2024-03-14',
+                        environment_score: 9,
+                        social_score: 13,
+                        governance_score: 5,
+                        total_score: 28,
+                        rating: 'C'
+                    },
+                    {
+                        ticker: 'luv',
+                        timestamp: '2024-02-14',
+                        environment_score: 9,
+                        social_score: 15,
+                        governance_score: 6,
+                        total_score: 31,
+                        rating: 'D'
+                    }
+                ]
             };
             dynamoDb.promise.mockResolvedValue(mockResponse);
 
@@ -145,29 +92,17 @@ describe('ESG Data Tests', () => {
                 TableName: 'esg_processed',
                 KeyConditionExpression: 'ticker = :ticker',
                 ExpressionAttributeValues: {
-                    ':ticker': 'dis'
+                    ':ticker': 'luv'
                 }
             };
 
             const data = await dynamoDb.query(params).promise();
-            expect(data.Items[0]).toMatchObject({
-                ticker: 'dis',
-                name: 'Disney',
-                environment_score: 82,
-                social_score: 88,
-                governance_score: 85,
-                total_score: 85,
-                environment_grade: 'A',
-                social_grade: 'A+',
-                governance_grade: 'A',
-                environment_level: 'Leader',
-                social_level: 'Leader',
-                governance_level: 'Leader'
-            });
+            expect(data.Items).toHaveLength(2);
+            expect(data.Items[0].timestamp).toBe('2024-03-14');
+            expect(data.Items[1].timestamp).toBe('2024-02-14');
         });
 
         test('Non-existent ticker should return empty Items array', async () => {
-            // Mock empty response
             const mockResponse = { Items: [] };
             dynamoDb.promise.mockResolvedValue(mockResponse);
 
