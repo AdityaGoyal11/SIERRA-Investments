@@ -16,7 +16,7 @@ const dynamodb = new AWS.DynamoDB.DocumentClient({
 // Function to check if a row has all required scores
 const is_valid_row = (record) => {
     const required_fields = ['total_score', 'environment_score', 'social_score', 'governance_score'];
-    return required_fields.every(field => record[field] && record[field].trim() !== '');
+    return required_fields.every((field) => record[field] && record[field].trim() !== '');
 };
 
 // Function to read and parse the CSV file
@@ -35,19 +35,18 @@ const readHistoricalData = () => {
 };
 
 // Function to transform the data to match our schema
-const transformData = (records) => {
-    return records
-        .filter(is_valid_row)
-        .map(record => ({
-            ticker: record.ticker?.toLowerCase(),
-            timestamp: record.timestamp,
-            last_processed_date: record.last_processing_date,
-            total_score: parseInt(record.total_score),
-            environmental_score: parseInt(record.environment_score),
-            social_score: parseInt(record.social_score),
-            governance_score: parseInt(record.governance_score)
-        }));
-};
+const transformData = (records) => records
+    .filter(is_valid_row)
+    .map((record) => ({
+        ticker: record.ticker?.toLowerCase(),
+        timestamp: record.timestamp,
+        last_processed_date: record.last_processing_date,
+        total_score: parseInt(record.total_score),
+        environmental_score: parseInt(record.environment_score),
+        social_score: parseInt(record.social_score),
+        governance_score: parseInt(record.governance_score),
+        rating: record.rating
+    }));
 
 // Function to add our historical data to the local DynamoDB database
 const seedData = async () => {

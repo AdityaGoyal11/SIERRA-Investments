@@ -6,7 +6,7 @@ resource "aws_lambda_function" "esg_etl" {
   filename        = "../app/lambda/esg-etl.zip"
   source_code_hash = filebase64sha256("../app/lambda/esg-etl.zip")
   # Increased timeout for processing
-  timeout       = 30
+  timeout       = 60
   # Increased memory for pandas
   memory_size   = 256
   
