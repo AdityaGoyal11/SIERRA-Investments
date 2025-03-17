@@ -23,6 +23,11 @@ resource "aws_dynamodb_table" "esg_processed" {
     }
 
     attribute {
+        name = "ratting"
+        type = "S"
+    }
+
+    attribute {
         name = "last_processed_date"
         type = "S"
     }
