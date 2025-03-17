@@ -2,6 +2,7 @@
 const AWS = require('aws-sdk');
 const fs = require('fs');
 const csv = require('csv-parse/sync');
+const path = require('path');
 
 // Set up connection to our local DynamoDB
 const dynamodb = new AWS.DynamoDB.DocumentClient({
@@ -22,7 +23,15 @@ const is_valid_row = (record) => {
 // Function to read and parse the CSV file
 const readHistoricalData = () => {
     try {
-        const fileContent = fs.readFileSync('./data/historical_esg_data.csv', 'utf-8');
+        const scriptDir = path.dirname(__filename);
+        const appDir = path.dirname(scriptDir);
+        const csvPath = path.join(appDir, 'processed_data', 'processed_historical_esg_data.csv');
+        
+        if (!fs.existsSync(csvPath)) {
+            throw new Error(`CSV file not found at ${csvPath}`);
+        }
+        
+        const fileContent = fs.readFileSync(csvPath, 'utf-8');
         const records = csv.parse(fileContent, {
             columns: true,
             skip_empty_lines: true
