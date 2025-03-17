@@ -5,6 +5,8 @@ resource "aws_lambda_function" "esg_etl" {
   runtime       = "python3.9"
   filename        = "../app/lambda/esg-etl.zip"
   source_code_hash = filebase64sha256("../app/lambda/esg-etl.zip")
+  # Increased timeout for processing
+  timeout       = 60
   # Increased memory for pandas
   memory_size   = 256
   

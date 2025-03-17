@@ -25,7 +25,11 @@ services:
       - ./app:/usr/src/app
       - /usr/src/app/node_modules
     command: >
-      sh -c "node scripts/init-dynamodb.js &&
+      sh -c "mkdir -p data processed_data &&
+             cd scripts &&
+             python3 process_csv.py &&
+             cd .. &&
+             node scripts/init-dynamodb.js &&
              node scripts/seed-dynamodb.js &&
              npm run dev"
     depends_on:

@@ -26,21 +26,11 @@ const params = {
         // Secondary lookup key
         { AttributeName: 'timestamp', KeyType: 'RANGE' }
     ],
+    // environmental_score, social_score, governance_score, dont need to be defined here
     AttributeDefinitions: [
-        // Define our columns
-        // ticker is a string
         { AttributeName: 'ticker', AttributeType: 'S' },
-        // timestamp is a string
         { AttributeName: 'timestamp', AttributeType: 'S' },
-        // total_score is a number
         { AttributeName: 'total_score', AttributeType: 'N' },
-        // environmental_score is a number
-        { AttributeName: 'environmental_score', AttributeType: 'N' },
-        // social_score is a number
-        { AttributeName: 'social_score', AttributeType: 'N' },
-        // governance_score is a number
-        { AttributeName: 'governance_score', AttributeType: 'N' },
-        // last_processed_date is a string
         { AttributeName: 'last_processed_date', AttributeType: 'S' }
     ],
     GlobalSecondaryIndexes: [
