@@ -17,6 +17,8 @@ const dynamodb = new AWS.DynamoDB({
 const params = {
     // Name of our table
     TableName: 'esg_processed',
+    // Pay per request billing mode instead of provisioned throughput
+    BillingMode: 'PAY_PER_REQUEST',
     // How we'll look up data
     KeySchema: [
         // Main lookup key (index)
@@ -54,11 +56,6 @@ const params = {
             // Include all data in this view
             Projection: {
                 ProjectionType: 'ALL'
-            },
-            // How much power this view needs
-            ProvisionedThroughput: {
-                ReadCapacityUnits: 5,
-                WriteCapacityUnits: 5
             }
         },
         {
@@ -69,18 +66,9 @@ const params = {
             ],
             Projection: {
                 ProjectionType: 'ALL'
-            },
-            ProvisionedThroughput: {
-                ReadCapacityUnits: 5,
-                WriteCapacityUnits: 5
             }
         }
-    ],
-    // How much power the main table needs
-    ProvisionedThroughput: {
-        ReadCapacityUnits: 5,
-        WriteCapacityUnits: 5
-    }
+    ]
 };
 
 // Function to create our table
