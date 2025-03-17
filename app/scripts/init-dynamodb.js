@@ -39,7 +39,9 @@ const params = {
         // governance_score is a number
         { AttributeName: 'governance_score', AttributeType: 'N' },
         // last_processed_date is a string
-        { AttributeName: 'last_processed_date', AttributeType: 'S' }
+        { AttributeName: 'last_processed_date', AttributeType: 'S' },
+        // total rating
+        { AttributeName: 'rating', AttributeType: 'S' }
     ],
     GlobalSecondaryIndexes: [
         // Searching data using secondary index/attributes which isnt ticker or timestamp
