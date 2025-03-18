@@ -2,6 +2,7 @@
 const AWS = require('aws-sdk');
 const fs = require('fs');
 const csv = require('csv-parse/sync');
+const path = require('path');
 
 // Set up connection to our local DynamoDB
 const dynamodb = new AWS.DynamoDB.DocumentClient({
@@ -16,13 +17,21 @@ const dynamodb = new AWS.DynamoDB.DocumentClient({
 // Function to check if a row has all required scores
 const is_valid_row = (record) => {
     const required_fields = ['total_score', 'environment_score', 'social_score', 'governance_score'];
-    return required_fields.every(field => record[field] && record[field].trim() !== '');
+    return required_fields.every((field) => record[field] && record[field].trim() !== '');
 };
 
 // Function to read and parse the CSV file
 const readHistoricalData = () => {
     try {
-        const fileContent = fs.readFileSync('./data/historical_esg_data.csv', 'utf-8');
+        const scriptDir = path.dirname(__filename);
+        const appDir = path.dirname(scriptDir);
+        const csvPath = path.join(appDir, 'processed_data', 'processed_historical_esg_data.csv');
+
+        if (!fs.existsSync(csvPath)) {
+            throw new Error(`CSV file not found at ${csvPath}`);
+        }
+
+        const fileContent = fs.readFileSync(csvPath, 'utf-8');
         const records = csv.parse(fileContent, {
             columns: true,
             skip_empty_lines: true
@@ -35,19 +44,18 @@ const readHistoricalData = () => {
 };
 
 // Function to transform the data to match our schema
-const transformData = (records) => {
-    return records
-        .filter(is_valid_row)
-        .map(record => ({
-            ticker: record.ticker?.toLowerCase(),
-            timestamp: record.timestamp,
-            last_processed_date: record.last_processing_date,
-            total_score: parseInt(record.total_score),
-            environmental_score: parseInt(record.environment_score),
-            social_score: parseInt(record.social_score),
-            governance_score: parseInt(record.governance_score)
-        }));
-};
+const transformData = (records) => records
+    .filter(is_valid_row)
+    .map((record) => ({
+        ticker: record.ticker?.toLowerCase(),
+        timestamp: record.timestamp,
+        last_processed_date: record.last_processing_date,
+        total_score: parseInt(record.total_score),
+        environmental_score: parseInt(record.environment_score),
+        social_score: parseInt(record.social_score),
+        governance_score: parseInt(record.governance_score),
+        rating: record.rating
+    }));
 
 // Function to add our historical data to the local DynamoDB database
 const seedData = async () => {

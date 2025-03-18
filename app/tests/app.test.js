@@ -5,6 +5,7 @@ const AWS = require('aws-sdk');
 jest.mock('aws-sdk', () => {
     const mockDynamoDb = {
         query: jest.fn().mockReturnThis(),
+        scan: jest.fn().mockReturnThis(),
         promise: jest.fn()
     };
     return {
@@ -43,7 +44,7 @@ describe('Testing express/src/app.js', () => {
             process.env.DYNAMODB_ENDPOINT = 'http://localhost:8000';
             process.env.AWS_ACCESS_KEY_ID = 'local';
             process.env.AWS_SECRET_ACCESS_KEY = 'local';
-            
+
             jest.isolateModules(() => {
                 require('../express/src/app');
             });
@@ -87,7 +88,7 @@ describe('Testing express/src/app.js', () => {
     describe('Health Check Endpoint', () => {
         test('should return 200 status and ok message', async () => {
             const response = await request(app).get('/health');
-            
+
             expect(response.status).toBe(200);
             expect(response.body).toEqual({ status: 'ok' });
         });
@@ -97,7 +98,7 @@ describe('Testing express/src/app.js', () => {
     describe('ESG Routes', () => {
         test('should setup ESG routes at /api/esg', async () => {
             const response = await request(app).get('/api/esg');
-            
+
             expect(response.status).toBe(200);
         });
 
@@ -129,7 +130,7 @@ describe('Testing express/src/app.js', () => {
             dynamoDb.promise.mockResolvedValue(mockResponse);
 
             const response = await request(app).get('/api/esg/dis');
-            
+
             expect(response.status).toBe(200);
             expect(response.body).toBeDefined();
             expect(response.body.ticker).toBe('dis');
@@ -147,9 +148,9 @@ describe('Testing express/src/app.js', () => {
             dynamoDb.promise.mockResolvedValue(mockResponse);
 
             const response = await request(app).get('/api/esg/nonexistent');
-            
+
             expect(response.status).toBe(404);
-            expect(response.body).toEqual({ message: "No ESG data found for ticker: nonexistent" });
+            expect(response.body).toEqual({ message: 'No ESG data found for ticker: nonexistent' });
         });
 
         test('should return 500 for DynamoDB error', async () => {
@@ -158,9 +159,57 @@ describe('Testing express/src/app.js', () => {
             dynamoDb.promise.mockRejectedValue(error);
 
             const response = await request(app).get('/api/esg/dis');
-            
+
             expect(response.status).toBe(500);
             expect(response.body).toEqual({ message: 'Error fetching ESG data', error: error.message });
         });
+
+        test('should return all ESG data', async () => {
+            const mockResponse = {
+                Items: [
+                    {
+                        ticker: 'dis',
+                        timestamp: '2024-03-12',
+                        last_processed_date: '2024-03-12',
+                        total_score: 85,
+                        environmental_score: 80,
+                        social_score: 90,
+                        governance_score: 85
+                    },
+                    {
+                        ticker: 'dis',
+                        timestamp: '2023-03-12',
+                        last_processed_date: '2023-03-12',
+                        total_score: 82,
+                        environmental_score: 78,
+                        social_score: 88,
+                        governance_score: 80
+                    }
+                ]
+            };
+
+            const dynamoDb = new AWS.DynamoDB.DocumentClient();
+           
+            dynamoDb.promise.mockResolvedValue(mockResponse);
+            const response = await request(app).get('/api/all');
+
+            expect(response.status).toBe(200);
+            expect(response.body).toBeDefined();
+            expect(response.body).toBeInstanceOf(Object);
+        });
+
+        test('should return 500 for DynamoDB error when fetching all ESG data', async () => {
+            const dynamoDb = new AWS.DynamoDB.DocumentClient();
+            const error = new Error('DynamoDB error');
+            dynamoDb.promise.mockRejectedValue(error);
+
+
+            const response = await request(app).get('/api/all');
+
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({ message: 'Error fetching ESG data', error: error.message });
+        });
+
+
     });
 });
