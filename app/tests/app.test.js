@@ -5,6 +5,7 @@ const AWS = require('aws-sdk');
 jest.mock('aws-sdk', () => {
     const mockDynamoDb = {
         query: jest.fn().mockReturnThis(),
+        scan: jest.fn().mockReturnThis(),
         promise: jest.fn()
     };
     return {
@@ -190,7 +191,6 @@ describe('Testing express/src/app.js', () => {
             const dynamoDb = new AWS.DynamoDB.DocumentClient();
            
             dynamoDb.promise.mockResolvedValue(mockResponse);
-            // console.log(dynamoDb.promise.mockResolvedValue(mockResponse));
             const response = await request(app).get('/api/all');
 
             expect(response.status).toBe(200);
