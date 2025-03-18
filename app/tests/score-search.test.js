@@ -162,7 +162,7 @@ describe('Testing Score Search', () => {
             const response = await request(app).get('/api/search/score/greater/total_score/-1');
 
             expect(response.status).toBe(500);
-            expect(response.body).toEqual({ message: 'Invalid score value, must be greater or equal to 0.' });
+            expect(response.body).toEqual({ message: 'Invalid score value, must be greater than or equal to 0.' });
         });
 
         test('should return 500 for DynamoDB error', async () => {
