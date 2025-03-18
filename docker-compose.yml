@@ -24,9 +24,6 @@ services:
     volumes:
       - ./app:/usr/src/app
       - /usr/src/app/node_modules
-    command: >
-      sh -c "node scripts/init-dynamodb.js &&
-             node scripts/seed-dynamodb.js &&
-             npm run dev"
+    command: npm run dev
     depends_on:
-      - dynamodb-local 
+      - dynamodb-local

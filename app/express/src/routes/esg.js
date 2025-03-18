@@ -37,7 +37,7 @@ router.get('/:ticker', async (req, res) => {
         if (data.Items && data.Items.length > 0) {
             // Return all historical entries for this ticker
             res.json({
-                ticker: ticker,
+                ticker,
                 historical_ratings: data.Items
             });
         } else {
