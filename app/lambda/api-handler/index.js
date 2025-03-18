@@ -19,25 +19,38 @@ const createResponse = (statusCode, body) => ({
 });
 
 exports.handler = async (event) => {
-    console.log('Event:', JSON.stringify(event, null, 2));
+    console.log('Event received:', JSON.stringify(event, null, 2));
     
     try {
         if (event.httpMethod === 'OPTIONS') {
             return createResponse(200, {});
         }
 
+        // Log detailed information about the request
+        console.log('HTTP Method:', event.httpMethod);
+        console.log('Path:', event.path);
+        console.log('Path Parameters:', JSON.stringify(event.pathParameters));
+        console.log('Query String Parameters:', JSON.stringify(event.queryStringParameters));
+
         const pathParameters = event.pathParameters || {};
         const ticker = pathParameters.ticker;
+        const scoreType = pathParameters.scoreType;
+        const score = pathParameters.score;
+        const score1 = pathParameters.score1;
+        const score2 = pathParameters.score2;
+        
+        console.log('Extracted Parameters:', { ticker, scoreType, score, score1, score2 });
 
-        if (event.path === '/api/esg-data' && event.httpMethod === 'GET') {
-            console.log('Handling /api/esg-data request');
+        // /api/all endpoint (to match Express routes in esg-data.js)
+        if (event.path === '/api/all' && event.httpMethod === 'GET') {
+            console.log('Handling /api/all request');
             const params = {
                 TableName: process.env.DYNAMODB_TABLE || 'esg_processed',
                 Select: 'ALL_ATTRIBUTES'
             };
 
             const data = await dynamodb.scan(params).promise();
-            console.log('DynamoDB response:', JSON.stringify(data, null, 2));
+            console.log('DynamoDB response items count:', data.Items ? data.Items.length : 0);
 
             if (data.Items && data.Items.length > 0) {
                 return createResponse(200, {
@@ -49,8 +62,8 @@ exports.handler = async (event) => {
             }
         }
 
-        // /api/esg/{ticker} endpoint
-        if (ticker) {
+        // Handle /api/esg/{ticker} endpoint
+        if (event.path.startsWith('/api/esg/') && ticker && event.httpMethod === 'GET') {
             console.log('Handling /api/esg/{ticker} request for ticker:', ticker);
             const params = {
                 TableName: process.env.DYNAMODB_TABLE || 'esg_processed',
@@ -63,7 +76,7 @@ exports.handler = async (event) => {
 
             console.log('DynamoDB params:', JSON.stringify(params, null, 2));
             const data = await dynamodb.query(params).promise();
-            console.log('DynamoDB response:', JSON.stringify(data, null, 2));
+            console.log('DynamoDB response items count:', data.Items ? data.Items.length : 0);
 
             if (data.Items && data.Items.length > 0) {
                 return createResponse(200, {
@@ -75,10 +88,185 @@ exports.handler = async (event) => {
             }
         }
 
-        return createResponse(404, { message: 'Not Found' });
+        // Handle /api/search/score/greater/{scoreType}/{score} endpoint
+        if (event.path.includes('/api/search/score/greater/') && scoreType && score && event.httpMethod === 'GET') {
+            console.log(`Handling /api/search/score/greater/${scoreType}/${score} request`);
+
+            const validType = ['total_score', 'environmental_score', 'social_score', 'governance_score'];
+            if (!validType.includes(scoreType)) {
+                return createResponse(500, { 
+                    message: 'Invalid score type. Choose from: total_score, environmental_score, social_score, governance_score.' 
+                });
+            }
+
+            if (Number(score) < 0) {
+                return createResponse(500, { message: 'Invalid score value, must be greater than or equal to 0.' });
+            }
+
+            const params = {
+                TableName: process.env.DYNAMODB_TABLE || 'esg_processed',
+                ExpressionAttributeValues: {
+                    ':score': Number(score)
+                },
+                ExpressionAttributeNames: {
+                    '#scoreType': scoreType
+                },
+                FilterExpression: '#scoreType >= :score',
+                ScanIndexForward: false
+            };
+
+            console.log('DynamoDB params:', JSON.stringify(params, null, 2));
+            const data = await dynamodb.scan(params).promise();
+            console.log('DynamoDB response items count:', data.Items ? data.Items.length : 0);
+
+            const validCompanies = [];
+            data.Items.forEach((item) => {
+                if (item[scoreType] >= Number(score)) {
+                    validCompanies.push({
+                        ticker: item.ticker,
+                        score: item[scoreType],
+                        timestamp: item.timestamp
+                    });
+                }
+            });
+
+            if (validCompanies.length === 0) {
+                return createResponse(404, { 
+                    message: `No companies found with ${scoreType} greater than ${score}.` 
+                });
+            }
+
+            return createResponse(200, {
+                scoreType,
+                validCompanies
+            });
+        }
+
+        // Handle /api/search/score/lesser/{scoreType}/{score} endpoint
+        if (event.path.includes('/api/search/score/lesser/') && scoreType && score && event.httpMethod === 'GET') {
+            console.log(`Handling /api/search/score/lesser/${scoreType}/${score} request`);
+
+            const validType = ['total_score', 'environmental_score', 'social_score', 'governance_score'];
+            if (!validType.includes(scoreType)) {
+                return createResponse(500, { 
+                    message: 'Invalid score type. Choose from: total_score, environmental_score, social_score, governance_score.' 
+                });
+            }
+
+            if (Number(score) < 0) {
+                return createResponse(500, { message: 'Invalid score value, must be greater or equal to 0.' });
+            }
+
+            const params = {
+                TableName: process.env.DYNAMODB_TABLE || 'esg_processed',
+                ExpressionAttributeValues: {
+                    ':score': Number(score)
+                },
+                ExpressionAttributeNames: {
+                    '#scoreType': scoreType
+                },
+                FilterExpression: '#scoreType <= :score',
+                ScanIndexForward: false
+            };
+
+            console.log('DynamoDB params:', JSON.stringify(params, null, 2));
+            const data = await dynamodb.scan(params).promise();
+            console.log('DynamoDB response items count:', data.Items ? data.Items.length : 0);
+
+            const validCompanies = [];
+            data.Items.forEach((item) => {
+                if (item[scoreType] <= Number(score)) {
+                    validCompanies.push({
+                        ticker: item.ticker,
+                        score: item[scoreType],
+                        timestamp: item.timestamp
+                    });
+                }
+            });
+
+            if (validCompanies.length === 0) {
+                return createResponse(404, { 
+                    message: `No companies found with ${scoreType} less than ${score}.` 
+                });
+            }
+
+            return createResponse(200, {
+                scoreType,
+                validCompanies
+            });
+        }
+
+        // Handle /api/search/score/{scoreType}/{score1}/{score2} endpoint
+        if (event.path.includes('/api/search/score/') && scoreType && score1 && score2 && event.httpMethod === 'GET') {
+            console.log(`Handling /api/search/score/${scoreType}/${score1}/${score2} request`);
+            console.log('Score range parameters:', { scoreType, score1, score2 });
+
+            const validType = ['total_score', 'environmental_score', 'social_score', 'governance_score'];
+            if (!validType.includes(scoreType)) {
+                return createResponse(500, { 
+                    message: 'Invalid score type. Choose from: total_score, environmental_score, social_score, governance_score.' 
+                });
+            }
+
+            // Validate score values
+            if (Number(score1) < 0 || Number(score2) < 0) {
+                return createResponse(500, { message: 'Invalid score value, must be greater or equal to 0.' });
+            }
+
+            if (Number(score1) > Number(score2)) {
+                return createResponse(500, { message: 'Invalid score range, first score must be less than second score.' });
+            }
+
+            const params = {
+                TableName: process.env.DYNAMODB_TABLE || 'esg_processed',
+                ExpressionAttributeValues: {
+                    ':score1': Number(score1),
+                    ':score2': Number(score2)
+                },
+                ExpressionAttributeNames: {
+                    '#scoreType': scoreType
+                },
+                FilterExpression: '#scoreType BETWEEN :score1 AND :score2',
+                ScanIndexForward: false
+            };
+
+            console.log('DynamoDB params:', JSON.stringify(params, null, 2));
+            const data = await dynamodb.scan(params).promise();
+            console.log('DynamoDB response items count:', data.Items ? data.Items.length : 0);
+
+            const validCompanies = [];
+            data.Items.forEach((item) => {
+                if (item[scoreType] >= Number(score1) && item[scoreType] <= Number(score2)) {
+                    validCompanies.push({
+                        ticker: item.ticker,
+                        score: item[scoreType],
+                        timestamp: item.timestamp
+                    });
+                }
+            });
+
+            if (validCompanies.length === 0) {
+                return createResponse(404, { 
+                    message: `No companies found with ${scoreType} between ${score1} and ${score2}.` 
+                });
+            }
+
+            return createResponse(200, {
+                scoreType,
+                validCompanies
+            });
+        }
+
+        console.log('No matching route found for path:', event.path);
+        return createResponse(404, { 
+            message: 'Not Found', 
+            path: event.path,
+            method: event.httpMethod,
+            pathParameters: pathParameters 
+        });
 
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error processing request:', error);
         return createResponse(500, { 
             message: 'Error fetching ESG data', 
             error: error.message,

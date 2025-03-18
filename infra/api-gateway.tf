@@ -70,13 +70,150 @@ resource "aws_api_gateway_integration" "lambda_integration_data" {
   uri                    = aws_lambda_function.api_handler.invoke_arn
 }
 
+# Create API Gateway resource for /api/search
+resource "aws_api_gateway_resource" "search" {
+  rest_api_id = aws_api_gateway_rest_api.sierra_api.id
+  parent_id   = aws_api_gateway_resource.api.id
+  path_part   = "search"
+}
+
+# Create API Gateway resource for /api/search/score
+resource "aws_api_gateway_resource" "score" {
+  rest_api_id = aws_api_gateway_rest_api.sierra_api.id
+  parent_id   = aws_api_gateway_resource.search.id
+  path_part   = "score"
+}
+
+# Create API Gateway resource for /api/search/score/greater
+resource "aws_api_gateway_resource" "greater" {
+  rest_api_id = aws_api_gateway_rest_api.sierra_api.id
+  parent_id   = aws_api_gateway_resource.score.id
+  path_part   = "greater"
+}
+
+# Create API Gateway resource for /api/search/score/greater/{scoreType}
+resource "aws_api_gateway_resource" "greater_score_type" {
+  rest_api_id = aws_api_gateway_rest_api.sierra_api.id
+  parent_id   = aws_api_gateway_resource.greater.id
+  path_part   = "{scoreType}"
+}
+
+# Create API Gateway resource for /api/search/score/greater/{scoreType}/{score}
+resource "aws_api_gateway_resource" "greater_score_value" {
+  rest_api_id = aws_api_gateway_rest_api.sierra_api.id
+  parent_id   = aws_api_gateway_resource.greater_score_type.id
+  path_part   = "{score}"
+}
+
+# Create API Gateway method for GET /api/search/score/greater/{scoreType}/{score}
+resource "aws_api_gateway_method" "get_greater_score" {
+  rest_api_id   = aws_api_gateway_rest_api.sierra_api.id
+  resource_id   = aws_api_gateway_resource.greater_score_value.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+# Create API Gateway integration with Lambda for greater score endpoint
+resource "aws_api_gateway_integration" "lambda_integration_greater_score" {
+  rest_api_id = aws_api_gateway_rest_api.sierra_api.id
+  resource_id = aws_api_gateway_resource.greater_score_value.id
+  http_method = aws_api_gateway_method.get_greater_score.http_method
+
+  integration_http_method = "POST"
+  type                   = "AWS_PROXY"
+  uri                    = aws_lambda_function.api_handler.invoke_arn
+}
+
+# Create API Gateway resource for /api/search/score/lesser
+resource "aws_api_gateway_resource" "lesser" {
+  rest_api_id = aws_api_gateway_rest_api.sierra_api.id
+  parent_id   = aws_api_gateway_resource.score.id
+  path_part   = "lesser"
+}
+
+# Create API Gateway resource for /api/search/score/lesser/{scoreType}
+resource "aws_api_gateway_resource" "lesser_score_type" {
+  rest_api_id = aws_api_gateway_rest_api.sierra_api.id
+  parent_id   = aws_api_gateway_resource.lesser.id
+  path_part   = "{scoreType}"
+}
+
+# Create API Gateway resource for /api/search/score/lesser/{scoreType}/{score}
+resource "aws_api_gateway_resource" "lesser_score_value" {
+  rest_api_id = aws_api_gateway_rest_api.sierra_api.id
+  parent_id   = aws_api_gateway_resource.lesser_score_type.id
+  path_part   = "{score}"
+}
+
+# Create API Gateway method for GET /api/search/score/lesser/{scoreType}/{score}
+resource "aws_api_gateway_method" "get_lesser_score" {
+  rest_api_id   = aws_api_gateway_rest_api.sierra_api.id
+  resource_id   = aws_api_gateway_resource.lesser_score_value.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+# Create API Gateway integration with Lambda for lesser score endpoint
+resource "aws_api_gateway_integration" "lambda_integration_lesser_score" {
+  rest_api_id = aws_api_gateway_rest_api.sierra_api.id
+  resource_id = aws_api_gateway_resource.lesser_score_value.id
+  http_method = aws_api_gateway_method.get_lesser_score.http_method
+
+  integration_http_method = "POST"
+  type                   = "AWS_PROXY"
+  uri                    = aws_lambda_function.api_handler.invoke_arn
+}
+
+# Create API Gateway resource for /api/search/score/{scoreType}
+resource "aws_api_gateway_resource" "score_type" {
+  rest_api_id = aws_api_gateway_rest_api.sierra_api.id
+  parent_id   = aws_api_gateway_resource.score.id
+  path_part   = "{scoreType}"
+}
+
+# Create API Gateway resource for /api/search/score/{scoreType}/{score1}
+resource "aws_api_gateway_resource" "score_value1" {
+  rest_api_id = aws_api_gateway_rest_api.sierra_api.id
+  parent_id   = aws_api_gateway_resource.score_type.id
+  path_part   = "{score1}"
+}
+
+# Create API Gateway resource for /api/search/score/{scoreType}/{score1}/{score2}
+resource "aws_api_gateway_resource" "score_value2" {
+  rest_api_id = aws_api_gateway_rest_api.sierra_api.id
+  parent_id   = aws_api_gateway_resource.score_value1.id
+  path_part   = "{score2}"
+}
+
+# Create API Gateway method for GET /api/search/score/{scoreType}/{score1}/{score2}
+resource "aws_api_gateway_method" "get_score_range" {
+  rest_api_id   = aws_api_gateway_rest_api.sierra_api.id
+  resource_id   = aws_api_gateway_resource.score_value2.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+# Create API Gateway integration with Lambda for score range endpoint
+resource "aws_api_gateway_integration" "lambda_integration_score_range" {
+  rest_api_id = aws_api_gateway_rest_api.sierra_api.id
+  resource_id = aws_api_gateway_resource.score_value2.id
+  http_method = aws_api_gateway_method.get_score_range.http_method
+
+  integration_http_method = "POST"
+  type                   = "AWS_PROXY"
+  uri                    = aws_lambda_function.api_handler.invoke_arn
+}
+
 # Deploy the API Gateway
 resource "aws_api_gateway_deployment" "sierra_api" {
   rest_api_id = aws_api_gateway_rest_api.sierra_api.id
   
   depends_on = [
     aws_api_gateway_integration.lambda_integration,
-    aws_api_gateway_integration.lambda_integration_data
+    aws_api_gateway_integration.lambda_integration_data,
+    aws_api_gateway_integration.lambda_integration_greater_score,
+    aws_api_gateway_integration.lambda_integration_lesser_score,
+    aws_api_gateway_integration.lambda_integration_score_range
   ]
 
   lifecycle {
