@@ -1,5 +1,5 @@
 const express = require('express');
-const AWS = require('aws-sdk');
+
 
 const router = express.Router();
 
@@ -24,7 +24,6 @@ router.get('/all', async (req, res) => {
     };
 
     try {
-        console.log(dynamodb);
         const data = await dynamodb.scan(params).promise();
 
         if (data.Items && data.Items.length > 0) {
