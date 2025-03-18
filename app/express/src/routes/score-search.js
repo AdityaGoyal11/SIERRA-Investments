@@ -31,7 +31,7 @@ router.get('/greater/:scoreType/:score', async (req, res) => {
     }
 
     if (score < 0) {
-        return res.status(500).json({ message: 'Invalid score value, must be greater or equal to 0.' });
+        return res.status(500).json({ message: 'Invalid score value, must be greater than or equal to 0.' });
     }
 
     const params = {
