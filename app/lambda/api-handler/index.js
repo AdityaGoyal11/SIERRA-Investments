@@ -1,4 +1,5 @@
 const AWS = require('aws-sdk');
+
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 exports.handler = async (event) => {
@@ -25,20 +26,19 @@ exports.handler = async (event) => {
                     'Access-Control-Allow-Origin': '*'
                 },
                 body: JSON.stringify({
-                    ticker: ticker,
+                    ticker,
                     historical_ratings: data.Items
                 })
             };
-        } else {
-            return {
-                statusCode: 404,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
-                body: JSON.stringify({ message: `No ESG data found for ticker: ${ticker}` })
-            };
         }
+        return {
+            statusCode: 404,
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({ message: `No ESG data found for ticker: ${ticker}` })
+        };
     } catch (error) {
         console.error('Error:', error);
         return {
@@ -50,4 +50,4 @@ exports.handler = async (event) => {
             body: JSON.stringify({ message: 'Error fetching ESG data', error: error.message })
         };
     }
-}; 
+};

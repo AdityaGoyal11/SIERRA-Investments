@@ -1,6 +1,10 @@
 const express = require('express');
+const AWS = require('aws-sdk');
 
 const router = express.Router();
+
+// Set up our connection to DynamoDB
+const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 /**
  * @route GET /api/esg/all
@@ -14,6 +18,25 @@ const router = express.Router();
  * sorting options, filtering capabilities
  */
 router.get('/all', async (req, res) => {
-    //TODO: Implement retrieval of all ESG data
+    const params = {
+        TableName: 'esg_processed',
+        Select: 'ALL_ATTRIBUTES'
+    };
+
+    try {
+        const data = await dynamodb.scan(params).promise();
+
+        if (data.Items && data.Items.length > 0) {
+            res.json({
+                message: 'All ESG data retrieved successfully',
+                data: data.Items
+            });
+        } else {
+            res.status(404).json({ message: 'No ESG data found' });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ message: 'Error fetching ESG data', error: error.message });
+    }
 });
 module.exports = router;
