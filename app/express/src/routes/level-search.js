@@ -54,7 +54,7 @@ router.get('/total_level/:rating', async (req, res) => {
 
         res.json({
             rating: rating,
-            latest_companies: companies
+            companies: companies
         });
 
     } catch (error) {
