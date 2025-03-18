@@ -26,11 +26,11 @@ const readHistoricalData = () => {
         const scriptDir = path.dirname(__filename);
         const appDir = path.dirname(scriptDir);
         const csvPath = path.join(appDir, 'processed_data', 'processed_historical_esg_data.csv');
-        
+
         if (!fs.existsSync(csvPath)) {
             throw new Error(`CSV file not found at ${csvPath}`);
         }
-        
+
         const fileContent = fs.readFileSync(csvPath, 'utf-8');
         const records = csv.parse(fileContent, {
             columns: true,
