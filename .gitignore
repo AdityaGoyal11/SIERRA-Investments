@@ -3,6 +3,7 @@ terraform.tfstate
 terraform.tfstate.backup
 terraform.lock.hcl
 .terraform/
+infra-personal/
 
 # Node.js
 node_modules/
