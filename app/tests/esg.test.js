@@ -120,4 +120,64 @@ describe('ESG Data Tests', () => {
     });
 
     // TODO: Add API endpoint tests
+
+    describe('Rating Search API Tests', () => {
+        let dynamoDb;
+    
+        beforeEach(() => {
+            // Get new instance of the mock for each test
+            dynamoDb = new AWS.DynamoDB.DocumentClient();
+            // Clear all mock data
+            jest.clearAllMocks();
+        });
+    
+        describe('GET /api/search/level/total_level/:rating', () => {
+            test('should return companies for valid rating', async () => {
+                const mockResponse = {
+                    Items: [
+                        { ticker: 'GOOGL', total_level: 'C', timestamp: 2025-0o3-0o1 }
+                    ]
+                };
+    
+                dynamoDb.promise.mockResolvedValue(mockResponse);
+    
+                const response = await request(app).get('/api/search/level/total_level/B');
+    
+                expect(response.status).toBe(200);
+                expect(response.body).toHaveLength(1);
+                expect(response.body[0].ticker).toBe('GOOGL');
+            });
+    
+            test('should return 400 for invalid rating', async () => {
+                const response = await request(app).get('/api/search/level/total_level/F');
+    
+                expect(response.status).toBe(400);
+                expect(response.body).toEqual({
+                    message: 'Invalid total level. Choose from: A to E.'
+                });
+            });
+    
+            test('should return 404 if no companies found', async () => {
+                dynamoDb.promise.mockResolvedValue({ Items: [] });
+    
+                const response = await request(app).get('/api/search/level/total_level/A');
+    
+                expect(response.status).toBe(404);
+                expect(response.body).toEqual({
+                    message: 'No companies found for total_level = A'
+                });
+            });
+    
+            test('should return 500 if DynamoDB fails', async () => {
+                const error = new Error('DynamoDB error');
+                dynamoDb.promise.mockRejectedValue(error);
+    
+                const response = await request(app).get('/api/search/level/total_level/C');
+    
+                expect(response.status).toBe(500);
+                expect(response.body).toEqual({ message: 'Error fetching ESG data', error: error.message });
+            });
+        });
+    });
+    
 });
