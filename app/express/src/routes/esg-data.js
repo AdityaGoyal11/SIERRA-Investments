@@ -1,5 +1,5 @@
 const express = require('express');
-
+const AWS = require('aws-sdk');
 const router = express.Router();
 
 
@@ -20,9 +20,11 @@ const dynamodb = new AWS.DynamoDB.DocumentClient();
 router.get('/all', async (req, res) => {
     const params = {
         TableName: 'esg_processed',
+        Select: "ALL_ATTRIBUTES"
     };
 
     try {
+        console.log(dynamodb);
         const data = await dynamodb.scan(params).promise();
 
         if (data.Items && data.Items.length > 0) {
