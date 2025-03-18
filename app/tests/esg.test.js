@@ -1,17 +1,25 @@
 const AWS = require('aws-sdk');
+const request = require('supertest');
 
 // Mock AWS SDK
 jest.mock('aws-sdk', () => {
     const mockDynamoDb = {
+        scan: jest.fn().mockReturnThis(),
         query: jest.fn().mockReturnThis(),
         promise: jest.fn()
     };
     return {
+        config: {
+            update: jest.fn(() => {}) // Mock AWS.config.update to prevent errors
+        },
         DynamoDB: {
             DocumentClient: jest.fn(() => mockDynamoDb)
         }
     };
 });
+
+// Import the app after mocking AWS
+const app = require('../express/src/app');
 
 describe('ESG Data Tests', () => {
     let dynamoDb;
@@ -135,17 +143,22 @@ describe('ESG Data Tests', () => {
             test('should return companies for valid rating', async () => {
                 const mockResponse = {
                     Items: [
-                        { ticker: 'GOOGL', total_level: 'C', timestamp: 2025-0o3-0o1 }
+                        { ticker: 'GOOGL', total_level: 'C', timestamp: "2025-03-01" },
+                        { ticker: 'GOOGL', total_level: 'C', timestamp: "2025-02-01" },
+                        { ticker: 'GOOGL', total_level: 'C', timestamp: "2025-02-13" }
                     ]
                 };
     
                 dynamoDb.promise.mockResolvedValue(mockResponse);
-    
-                const response = await request(app).get('/api/search/level/total_level/B');
+
+                const response = await request(app).get('/api/search/level/total_level/C');
     
                 expect(response.status).toBe(200);
-                expect(response.body).toHaveLength(1);
-                expect(response.body[0].ticker).toBe('GOOGL');
+                //expect(response.body).toHaveLength(1);
+                expect(response.body.companies).toHaveLength(1);
+                //expect(response.body[0].ticker).toBe('GOOGL');
+                expect(response.body.companies[0].ticker).toBe('GOOGL');
+
             });
     
             test('should return 400 for invalid rating', async () => {
@@ -164,7 +177,7 @@ describe('ESG Data Tests', () => {
     
                 expect(response.status).toBe(404);
                 expect(response.body).toEqual({
-                    message: 'No companies found for total_level = A'
+                    message: 'No companies found for rating = A'
                 });
             });
     
