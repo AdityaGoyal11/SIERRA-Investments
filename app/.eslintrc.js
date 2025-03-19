@@ -10,6 +10,7 @@ module.exports = {
     },
     rules: {
         indent: ['error', 4],
+        'global-require': 0,
         'comma-dangle': ['error', 'never'],
         'no-console': 'off',
         'linebreak-style': 'off',
@@ -19,6 +20,15 @@ module.exports = {
         'no-trailing-spaces': 'error',
         'eol-last': ['error', 'always'],
         'import/newline-after-import': ['error', { count: 1 }],
+        'import/no-unresolved': [
+            'error',
+            {
+                ignore: [
+                    'csv-parse/sync',
+                    'csv-parser/sync'
+                ]
+            }
+        ],
         'no-restricted-syntax': [
             'error',
             {
