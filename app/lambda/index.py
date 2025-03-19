@@ -133,9 +133,6 @@ def handler(event, context):
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table('esg_processed')
 
-        # First, clear old data (pre-2020)
-        clear_pre_2020_data(table)
-
         # Get bucket and key from the S3 event
         bucket = event['Records'][0]['s3']['bucket']['name']
         key = event['Records'][0]['s3']['object']['key']
@@ -145,8 +142,10 @@ def handler(event, context):
         csv_content = response['Body'].read().decode('utf-8')
         df = pd.read_csv(io.StringIO(csv_content))
         
-        # Filter out rows with missing scores
+        # Filter out rows with missing scores and pre-2020 data
         df = df[df.apply(is_valid_row, axis=1)]
+        df['timestamp'] = df['timestamp'].apply(format_timestamp)
+        df = df[df['timestamp'] >= "2020-01-01"]
         
         # Get current timestamp for processing date if not in CSV
         current_time = datetime.now(pytz.UTC).isoformat()

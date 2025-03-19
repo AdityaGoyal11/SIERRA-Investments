@@ -15,9 +15,9 @@ const dynamodb = new AWS.DynamoDB.DocumentClient({
 });
 
 // Function to check if a row has all required scores
-const is_valid_row = (record) => {
-    const required_fields = ['total_score', 'environment_score', 'social_score', 'governance_score'];
-    return required_fields.every((field) => record[field] && record[field].trim() !== '');
+const isValidRow = (record) => {
+    const requiredFields = ['total_score', 'environment_score', 'social_score', 'governance_score'];
+    return requiredFields.every((field) => record[field] && record[field].trim() !== '');
 };
 
 // Function to read and parse the CSV file
@@ -45,15 +45,15 @@ const readHistoricalData = () => {
 
 // Function to transform the data to match our schema
 const transformData = (records) => records
-    .filter(is_valid_row)
+    .filter(isValidRow)
     .map((record) => ({
         ticker: record.ticker?.toLowerCase(),
         timestamp: record.timestamp,
         last_processed_date: record.last_processing_date,
-        total_score: parseInt(record.total_score),
-        environmental_score: parseInt(record.environment_score),
-        social_score: parseInt(record.social_score),
-        governance_score: parseInt(record.governance_score),
+        total_score: parseInt(record.total_score, 10),
+        environmental_score: parseInt(record.environment_score, 10),
+        social_score: parseInt(record.social_score, 10),
+        governance_score: parseInt(record.governance_score, 10),
         rating: record.rating
     }));
 
