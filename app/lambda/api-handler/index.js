@@ -20,33 +20,36 @@ const createResponse = (statusCode, body) => ({
 
 // Our dataset doesn't include company names, so we're using a hard-coded mapping
 const companyNameToTicker = {
-    'apple': 'aapl',
-    'microsoft': 'msft',
-    'alphabet': 'googl',
-    'google': 'googl',
-    'amazon': 'amzn',
-    'meta': 'meta',
-    'facebook': 'meta',
-    'tesla': 'tsla',
-    'walmart': 'wmt',
-    'disney': 'dis',
-    'walt disney': 'dis',
-    'netflix': 'nflx',
-    'southwest airlines': 'luv',
-    'southwest': 'luv',
-    'jpmorgan': 'jpm',
-    'jpmorgan chase': 'jpm',
-    'bank of america': 'bac',
-    'nvidia': 'nvda',
-    'coca cola': 'ko',
+    'texas instruments': 'txn',
     'coca-cola': 'ko',
-    'pepsi': 'pep',
-    'pepsico': 'pep',
-    'nike': 'nke',
-    'starbucks': 'sbux',
-    'goldman sachs': 'gs',
+    'coca cola': 'ko',
+    pepsi: 'pep',
+    pepsico: 'pep',
+    'procter & gamble': 'pg',
+    'procter and gamble': 'pg',
+    walmart: 'wmt',
+    costco: 'cost',
+    target: 'tgt',
+    'home depot': 'hd',
+    mcdonalds: 'mcd',
     'mcdonald\'s': 'mcd',
-    'mcdonalds': 'mcd'
+    starbucks: 'sbux',
+    nike: 'nke',
+    'jpmorgan chase': 'jpm',
+    jpmorgan: 'jpm',
+    'bank of america': 'bac',
+    'wells fargo': 'wfc',
+    'goldman sachs': 'gs',
+    'morgan stanley': 'ms',
+    'american express': 'axp',
+    amex: 'axp',
+    visa: 'v',
+    mastercard: 'ma',
+    'johnson & johnson': 'jnj',
+    'johnson and johnson': 'jnj',
+    pfizer: 'pfe',
+    merck: 'mrk',
+    abbvie: 'abbv'
 };
 
 exports.handler = async (event) => {
@@ -346,28 +349,25 @@ exports.handler = async (event) => {
             console.log(`Handling /api/search/company/${companyName} request`);
 
             if (companyNameToTicker[companyName]) {
-                const ticker = companyNameToTicker[companyName];
-                
+                const companyTicker = companyNameToTicker[companyName];
                 const params = {
                     TableName: process.env.DYNAMODB_TABLE || 'esg_processed',
                     KeyConditionExpression: 'ticker = :ticker',
                     ExpressionAttributeValues: {
-                        ':ticker': ticker
-                    }
+                        ':ticker': companyTicker
+                    },
+                    ScanIndexForward: false
                 };
-                
                 console.log('DynamoDB params for ticker lookup:', JSON.stringify(params, null, 2));
                 const data = await dynamodb.query(params).promise();
                 console.log('DynamoDB response items count:', data.Items ? data.Items.length : 0);
-                
                 if (data.Items && data.Items.length > 0) {
-                    // Return the first item with the mapped name
+                    // Return the first item withthe mapped name
                     const result = data.Items[0];
                     result.name = companyName;
                     return createResponse(200, result);
                 }
             }
-
             // If not found in mapping, fall back to the original search
             const params = {
                 TableName: process.env.DYNAMODB_TABLE || 'esg_processed',
@@ -388,7 +388,10 @@ exports.handler = async (event) => {
                 return createResponse(404, { message: 'Company not found' });
             }
 
-            return createResponse(200, data.Items[0]); // Return first matching result
+            // Sort it and return most recent one
+            const sorted = data.Items.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            return createResponse(200, sorted[0]);
         }
 
         return createResponse(404, { message: 'Endpoint not found' });
