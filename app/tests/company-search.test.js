@@ -93,6 +93,7 @@ describe('Company Search API Tests', () => {
             expect(res.status).toBe(404);
             expect(res.body).toEqual({ message: 'Company not found' });
         });
+        
         test('Server error should return 500', async () => {
             // Force DynamoDB to reject with an error
             dynamoDb.promise.mockRejectedValue(new Error('DynamoDB scan failed'));

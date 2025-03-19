@@ -18,6 +18,37 @@ const createResponse = (statusCode, body) => ({
     body: JSON.stringify(body)
 });
 
+// Our dataset doesn't include company names, so we're using a hard-coded mapping
+const companyNameToTicker = {
+    'apple': 'aapl',
+    'microsoft': 'msft',
+    'alphabet': 'googl',
+    'google': 'googl',
+    'amazon': 'amzn',
+    'meta': 'meta',
+    'facebook': 'meta',
+    'tesla': 'tsla',
+    'walmart': 'wmt',
+    'disney': 'dis',
+    'walt disney': 'dis',
+    'netflix': 'nflx',
+    'southwest airlines': 'luv',
+    'southwest': 'luv',
+    'jpmorgan': 'jpm',
+    'jpmorgan chase': 'jpm',
+    'bank of america': 'bac',
+    'nvidia': 'nvda',
+    'coca cola': 'ko',
+    'coca-cola': 'ko',
+    'pepsi': 'pep',
+    'pepsico': 'pep',
+    'nike': 'nke',
+    'starbucks': 'sbux',
+    'goldman sachs': 'gs',
+    'mcdonald\'s': 'mcd',
+    'mcdonalds': 'mcd'
+};
+
 exports.handler = async (event) => {
     console.log('Event received:', JSON.stringify(event, null, 2));
 
@@ -309,47 +340,14 @@ exports.handler = async (event) => {
             });
         }
 
-        // Hard-coded mapping since our dataset doesn't include company names
-        const companyNameToTicker = {
-            'apple': 'aapl',
-            'microsoft': 'msft',
-            'alphabet': 'googl',
-            'google': 'googl',
-            'amazon': 'amzn',
-            'meta': 'meta',
-            'facebook': 'meta',
-            'tesla': 'tsla',
-            'walmart': 'wmt',
-            'disney': 'dis',
-            'walt disney': 'dis',
-            'netflix': 'nflx',
-            'southwest airlines': 'luv',
-            'southwest': 'luv',
-            'jpmorgan': 'jpm',
-            'jpmorgan chase': 'jpm',
-            'bank of america': 'bac',
-            'nvidia': 'nvda',
-            'coca cola': 'ko',
-            'coca-cola': 'ko',
-            'pepsi': 'pep',
-            'pepsico': 'pep',
-            'nike': 'nke',
-            'starbucks': 'sbux',
-            'goldman sachs': 'gs',
-            'mcdonald\'s': 'mcd',
-            'mcdonalds': 'mcd'
-        };
-
         // Handle /api/search/company/{name} endpoint
         if (event.path.includes('/api/search/company/') && event.httpMethod === 'GET') {
             const companyName = decodeURIComponent(event.pathParameters.name.toLowerCase().trim());
             console.log(`Handling /api/search/company/${companyName} request`);
 
-            // Check if company name exists in our mapping
             if (companyNameToTicker[companyName]) {
                 const ticker = companyNameToTicker[companyName];
                 
-                // Fetch company data from DynamoDB using ticker
                 const params = {
                     TableName: process.env.DYNAMODB_TABLE || 'esg_processed',
                     KeyConditionExpression: 'ticker = :ticker',
@@ -358,67 +356,39 @@ exports.handler = async (event) => {
                     }
                 };
                 
-                console.log('DynamoDB params:', JSON.stringify(params, null, 2));
+                console.log('DynamoDB params for ticker lookup:', JSON.stringify(params, null, 2));
                 const data = await dynamodb.query(params).promise();
                 console.log('DynamoDB response items count:', data.Items ? data.Items.length : 0);
                 
-                if (!data.Items || data.Items.length === 0) {
-                    return createResponse(404, { message: `No ESG data found for ticker: ${ticker}` });
+                if (data.Items && data.Items.length > 0) {
+                    // Return the first item with the mapped name
+                    const result = data.Items[0];
+                    result.name = companyName;
+                    return createResponse(200, result);
                 }
-                
-                // Find the most recent record
-                const latestRecord = data.Items.sort((a, b) => 
-                    new Date(b.timestamp) - new Date(a.timestamp)
-                )[0];
-                
-                // Return with both name and ticker
-                return createResponse(200, {
-                    name: companyName,
-                    ticker: ticker,
-                    data: latestRecord
-                });
-            }
-            
-            // Try partial matching if exact match not found
-            const matchingCompanies = Object.keys(companyNameToTicker).filter(name => 
-                name.includes(companyName) || companyName.includes(name)
-            );
-            
-            if (matchingCompanies.length > 0) {
-                const bestMatch = matchingCompanies[0]; // Take first match
-                const ticker = companyNameToTicker[bestMatch];
-                
-                // Fetch data for best match
-                const params = {
-                    TableName: process.env.DYNAMODB_TABLE || 'esg_processed',
-                    KeyConditionExpression: 'ticker = :ticker',
-                    ExpressionAttributeValues: {
-                        ':ticker': ticker
-                    }
-                };
-                
-                console.log('DynamoDB params:', JSON.stringify(params, null, 2));
-                const data = await dynamodb.query(params).promise();
-                console.log('DynamoDB response items count:', data.Items ? data.Items.length : 0);
-                
-                if (!data.Items || data.Items.length === 0) {
-                    return createResponse(404, { message: `No ESG data found for ticker: ${ticker}` });
-                }
-                
-                // Find the most recent record
-                const latestRecord = data.Items.sort((a, b) => 
-                    new Date(b.timestamp) - new Date(a.timestamp)
-                )[0];
-                
-                return createResponse(200, {
-                    name: bestMatch,
-                    ticker: ticker,
-                    suggested: true,
-                    data: latestRecord
-                });
             }
 
-            return createResponse(404, { message: 'Company not found' });
+            // If not found in mapping, fall back to the original search
+            const params = {
+                TableName: process.env.DYNAMODB_TABLE || 'esg_processed',
+                FilterExpression: 'LOWER(#name) = :name',
+                ExpressionAttributeNames: {
+                    '#name': 'name'
+                },
+                ExpressionAttributeValues: {
+                    ':name': companyName
+                }
+            };
+
+            console.log('DynamoDB params:', JSON.stringify(params, null, 2));
+            const data = await dynamodb.scan(params).promise();
+            console.log('DynamoDB response items count:', data.Items ? data.Items.length : 0);
+
+            if (!data.Items || data.Items.length === 0) {
+                return createResponse(404, { message: 'Company not found' });
+            }
+
+            return createResponse(200, data.Items[0]); // Return first matching result
         }
 
         return createResponse(404, { message: 'Endpoint not found' });
