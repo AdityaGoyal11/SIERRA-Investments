@@ -189,7 +189,7 @@ describe('Testing express/src/app.js', () => {
             };
 
             const dynamoDb = new AWS.DynamoDB.DocumentClient();
-           
+
             dynamoDb.promise.mockResolvedValue(mockResponse);
             const response = await request(app).get('/api/all');
 
@@ -203,13 +203,10 @@ describe('Testing express/src/app.js', () => {
             const error = new Error('DynamoDB error');
             dynamoDb.promise.mockRejectedValue(error);
 
-
             const response = await request(app).get('/api/all');
 
             expect(response.status).toBe(500);
             expect(response.body).toEqual({ message: 'Error fetching ESG data', error: error.message });
         });
-
-
     });
 });
