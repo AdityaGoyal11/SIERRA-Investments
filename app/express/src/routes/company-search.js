@@ -18,7 +18,7 @@ const dynamodb = new AWS.DynamoDB.DocumentClient();
  * - Add case-insensitive search
  */
 
-// Our dataset doesn't include company names, so we're using a hard-coded mapping (ik it's not ideal)
+// Dataset doesn't include company names, so we're hard-coding mapping
 const companyNameToTicker = {
     'apple': 'aapl',
     'microsoft': 'msft',
@@ -51,13 +51,11 @@ const companyNameToTicker = {
 
 router.get('/:name', async (req, res) => {
     try {
-        const companyName = req.params.name.toLowerCase().trim(); // Case-insensitive search
-        
-        // Check if company name exists in our mapping
+        const companyName = req.params.name.toLowerCase();        
         if (companyNameToTicker[companyName]) {
             const ticker = companyNameToTicker[companyName];
             
-            // Fetch company data from DynamoDB using ticker
+            // Fetch ESG data for this ticker
             const params = {
                 TableName: 'esg_processed',
                 KeyConditionExpression: 'ticker = :ticker',
@@ -68,64 +66,35 @@ router.get('/:name', async (req, res) => {
             
             const data = await dynamodb.query(params).promise();
             
-            if (!data.Items || data.Items.length === 0) {
-                return res.status(404).json({ message: `No ESG data found for ticker: ${ticker}` });
+            if (data.Items && data.Items.length > 0) {
+                const result = data.Items[0];
+                result.name = companyName;
+                return res.json(result);
             }
-            
-            // Find the most recent record
-            const latestRecord = data.Items.sort((a, b) => 
-                new Date(b.timestamp) - new Date(a.timestamp)
-            )[0];
-            
-            // Return with both name and ticker
-            return res.json({
-                name: req.params.name,
-                ticker: ticker,
-                data: latestRecord
-            });
         }
         
-        // Try partial matching if exact match not found
-        const matchingCompanies = Object.keys(companyNameToTicker).filter(name => 
-            name.includes(companyName) || companyName.includes(name)
-        );
-        
-        if (matchingCompanies.length > 0) {
-            const bestMatch = matchingCompanies[0]; // Take first match
-            const ticker = companyNameToTicker[bestMatch];
-            
-            // Fetch data for best match
-            const params = {
-                TableName: 'esg_processed',
-                KeyConditionExpression: 'ticker = :ticker',
-                ExpressionAttributeValues: {
-                    ':ticker': ticker
-                }
-            };
-            
-            const data = await dynamodb.query(params).promise();
-            
-            if (!data.Items || data.Items.length === 0) {
-                return res.status(404).json({ message: `No ESG data found for ticker: ${ticker}` });
+        // If not found in mapping, fall back to the original search
+        const params = {
+            TableName: 'esg_processed',
+            FilterExpression: 'LOWER(#name) = :name',
+            ExpressionAttributeNames: {
+                '#name': 'name'
+            },
+            ExpressionAttributeValues: {
+                ':name': companyName
             }
-            
-            // Find the most recent record
-            const latestRecord = data.Items.sort((a, b) => 
-                new Date(b.timestamp) - new Date(a.timestamp)
-            )[0];
-            
-            return res.json({
-                name: bestMatch,
-                ticker: ticker,
-                suggested: true,
-                data: latestRecord
-            });
+        };
+
+        const data = await dynamodb.scan(params).promise();
+
+        if (!data.Items || data.Items.length === 0) {
+            return res.status(404).json({ message: 'Company not found' });
         }
 
-        return res.status(404).json({ message: 'Company not found' });
+        return res.json(data.Items[0]); // Return first matching result
     } catch (error) {
         console.error('Error fetching company:', error);
-        return res.status(500).json({ message: 'Internal Server Error', error: error.message });
+        return res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
