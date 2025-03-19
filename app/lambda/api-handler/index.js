@@ -20,7 +20,7 @@ const createResponse = (statusCode, body) => ({
 
 exports.handler = async (event) => {
     console.log('Event received:', JSON.stringify(event, null, 2));
-    
+
     try {
         if (event.httpMethod === 'OPTIONS') {
             return createResponse(200, {});
@@ -33,13 +33,21 @@ exports.handler = async (event) => {
         console.log('Query String Parameters:', JSON.stringify(event.queryStringParameters));
 
         const pathParameters = event.pathParameters || {};
-        const ticker = pathParameters.ticker;
-        const scoreType = pathParameters.scoreType;
-        const score = pathParameters.score;
-        const score1 = pathParameters.score1;
-        const score2 = pathParameters.score2;
-        
-        console.log('Extracted Parameters:', { ticker, scoreType, score, score1, score2 });
+        const { ticker } = pathParameters;
+        const { scoreType } = pathParameters;
+        const { score } = pathParameters;
+        const { score1 } = pathParameters;
+        const { score2 } = pathParameters;
+        const { rating } = pathParameters;
+
+        console.log('Extracted Parameters:', {
+            ticker,
+            scoreType,
+            score,
+            score1,
+            score2,
+            rating
+        });
 
         // /api/all endpoint (to match Express routes in esg-data.js)
         if (event.path === '/api/all' && event.httpMethod === 'GET') {
@@ -57,9 +65,8 @@ exports.handler = async (event) => {
                     message: 'All ESG data retrieved successfully',
                     data: data.Items
                 });
-            } else {
-                return createResponse(404, { message: 'No ESG data found' });
             }
+            return createResponse(404, { message: 'No ESG data found' });
         }
 
         // Handle /api/esg/{ticker} endpoint
@@ -83,9 +90,54 @@ exports.handler = async (event) => {
                     ticker,
                     historical_ratings: data.Items
                 });
-            } else {
-                return createResponse(404, { message: `No ESG data found for ticker: ${ticker}` });
             }
+            return createResponse(404, { message: `No ESG data found for ticker: ${ticker}` });
+        }
+
+        // Handle /api/search/level/total_level/{rating} endpoint
+        if (event.path.includes('/api/search/level/total_level/') && rating && event.httpMethod === 'GET') {
+            console.log(`Handling /api/search/level/total_level/${rating} request`);
+
+            // Ensure rating is valid
+            const validLevels = ['A', 'B', 'C', 'D', 'E'];
+            if (!validLevels.includes(rating)) {
+                return createResponse(400, { message: 'Invalid total level. Choose from: A to E.' });
+            }
+            // Query for rating
+            const params = {
+                TableName: process.env.DYNAMODB_TABLE || 'esg_processed',
+                FilterExpression: 'attribute_exists(rating) AND rating = :rating',
+                ExpressionAttributeValues: {
+                    ':rating': rating
+                }
+            };
+
+            console.log('DynamoDB params:', JSON.stringify(params, null, 2));
+            const data = await dynamodb.scan(params).promise();
+            console.log('DynamoDB response items count:', data.Items ? data.Items.length : 0);
+
+            if (!data.Items || data.Items.length === 0) {
+                return createResponse(404, { message: `No companies found for rating = ${rating}` });
+            }
+
+            // Group by Ticker and Keep the Latest Record
+            const latestRecords = {};
+            data.Items.forEach((item) => {
+                const itemTicker = item.ticker;
+
+                // If the ticker is not in the dictionary, or this item has a later timestamp
+                if (!latestRecords[itemTicker] || new Date(item.timestamp)
+                    > new Date(latestRecords[itemTicker].timestamp)) {
+                    latestRecords[itemTicker] = item;
+                }
+            });
+
+            const companies = Object.values(latestRecords);
+
+            return createResponse(200, {
+                rating,
+                companies
+            });
         }
 
         // Handle /api/search/score/greater/{scoreType}/{score} endpoint
@@ -94,8 +146,8 @@ exports.handler = async (event) => {
 
             const validType = ['total_score', 'environmental_score', 'social_score', 'governance_score'];
             if (!validType.includes(scoreType)) {
-                return createResponse(500, { 
-                    message: 'Invalid score type. Choose from: total_score, environmental_score, social_score, governance_score.' 
+                return createResponse(500, {
+                    message: 'Invalid score type. Choose from: total_score, environmental_score, social_score, governance_score.'
                 });
             }
 
@@ -131,8 +183,8 @@ exports.handler = async (event) => {
             });
 
             if (validCompanies.length === 0) {
-                return createResponse(404, { 
-                    message: `No companies found with ${scoreType} greater than ${score}.` 
+                return createResponse(404, {
+                    message: `No companies found with ${scoreType} greater than ${score}.`
                 });
             }
 
@@ -148,8 +200,8 @@ exports.handler = async (event) => {
 
             const validType = ['total_score', 'environmental_score', 'social_score', 'governance_score'];
             if (!validType.includes(scoreType)) {
-                return createResponse(500, { 
-                    message: 'Invalid score type. Choose from: total_score, environmental_score, social_score, governance_score.' 
+                return createResponse(500, {
+                    message: 'Invalid score type. Choose from: total_score, environmental_score, social_score, governance_score.'
                 });
             }
 
@@ -185,8 +237,8 @@ exports.handler = async (event) => {
             });
 
             if (validCompanies.length === 0) {
-                return createResponse(404, { 
-                    message: `No companies found with ${scoreType} less than ${score}.` 
+                return createResponse(404, {
+                    message: `No companies found with ${scoreType} less than ${score}.`
                 });
             }
 
@@ -203,8 +255,8 @@ exports.handler = async (event) => {
 
             const validType = ['total_score', 'environmental_score', 'social_score', 'governance_score'];
             if (!validType.includes(scoreType)) {
-                return createResponse(500, { 
-                    message: 'Invalid score type. Choose from: total_score, environmental_score, social_score, governance_score.' 
+                return createResponse(500, {
+                    message: 'Invalid score type. Choose from: total_score, environmental_score, social_score, governance_score.'
                 });
             }
 
@@ -246,8 +298,8 @@ exports.handler = async (event) => {
             });
 
             if (validCompanies.length === 0) {
-                return createResponse(404, { 
-                    message: `No companies found with ${scoreType} between ${score1} and ${score2}.` 
+                return createResponse(404, {
+                    message: `No companies found with ${scoreType} between ${score1} and ${score2}.`
                 });
             }
 
@@ -257,18 +309,123 @@ exports.handler = async (event) => {
             });
         }
 
-        console.log('No matching route found for path:', event.path);
-        return createResponse(404, { 
-            message: 'Not Found', 
-            path: event.path,
-            method: event.httpMethod,
-            pathParameters: pathParameters 
-        });
+        // Hard-coded mapping since our dataset doesn't include company names
+        const companyNameToTicker = {
+            'apple': 'aapl',
+            'microsoft': 'msft',
+            'alphabet': 'googl',
+            'google': 'googl',
+            'amazon': 'amzn',
+            'meta': 'meta',
+            'facebook': 'meta',
+            'tesla': 'tsla',
+            'walmart': 'wmt',
+            'disney': 'dis',
+            'walt disney': 'dis',
+            'netflix': 'nflx',
+            'southwest airlines': 'luv',
+            'southwest': 'luv',
+            'jpmorgan': 'jpm',
+            'jpmorgan chase': 'jpm',
+            'bank of america': 'bac',
+            'nvidia': 'nvda',
+            'coca cola': 'ko',
+            'coca-cola': 'ko',
+            'pepsi': 'pep',
+            'pepsico': 'pep',
+            'nike': 'nke',
+            'starbucks': 'sbux',
+            'goldman sachs': 'gs',
+            'mcdonald\'s': 'mcd',
+            'mcdonalds': 'mcd'
+        };
 
+        // Handle /api/search/company/{name} endpoint
+        if (event.path.includes('/api/search/company/') && event.httpMethod === 'GET') {
+            const companyName = decodeURIComponent(event.pathParameters.name.toLowerCase().trim());
+            console.log(`Handling /api/search/company/${companyName} request`);
+
+            // Check if company name exists in our mapping
+            if (companyNameToTicker[companyName]) {
+                const ticker = companyNameToTicker[companyName];
+                
+                // Fetch company data from DynamoDB using ticker
+                const params = {
+                    TableName: process.env.DYNAMODB_TABLE || 'esg_processed',
+                    KeyConditionExpression: 'ticker = :ticker',
+                    ExpressionAttributeValues: {
+                        ':ticker': ticker
+                    }
+                };
+                
+                console.log('DynamoDB params:', JSON.stringify(params, null, 2));
+                const data = await dynamodb.query(params).promise();
+                console.log('DynamoDB response items count:', data.Items ? data.Items.length : 0);
+                
+                if (!data.Items || data.Items.length === 0) {
+                    return createResponse(404, { message: `No ESG data found for ticker: ${ticker}` });
+                }
+                
+                // Find the most recent record
+                const latestRecord = data.Items.sort((a, b) => 
+                    new Date(b.timestamp) - new Date(a.timestamp)
+                )[0];
+                
+                // Return with both name and ticker
+                return createResponse(200, {
+                    name: companyName,
+                    ticker: ticker,
+                    data: latestRecord
+                });
+            }
+            
+            // Try partial matching if exact match not found
+            const matchingCompanies = Object.keys(companyNameToTicker).filter(name => 
+                name.includes(companyName) || companyName.includes(name)
+            );
+            
+            if (matchingCompanies.length > 0) {
+                const bestMatch = matchingCompanies[0]; // Take first match
+                const ticker = companyNameToTicker[bestMatch];
+                
+                // Fetch data for best match
+                const params = {
+                    TableName: process.env.DYNAMODB_TABLE || 'esg_processed',
+                    KeyConditionExpression: 'ticker = :ticker',
+                    ExpressionAttributeValues: {
+                        ':ticker': ticker
+                    }
+                };
+                
+                console.log('DynamoDB params:', JSON.stringify(params, null, 2));
+                const data = await dynamodb.query(params).promise();
+                console.log('DynamoDB response items count:', data.Items ? data.Items.length : 0);
+                
+                if (!data.Items || data.Items.length === 0) {
+                    return createResponse(404, { message: `No ESG data found for ticker: ${ticker}` });
+                }
+                
+                // Find the most recent record
+                const latestRecord = data.Items.sort((a, b) => 
+                    new Date(b.timestamp) - new Date(a.timestamp)
+                )[0];
+                
+                return createResponse(200, {
+                    name: bestMatch,
+                    ticker: ticker,
+                    suggested: true,
+                    data: latestRecord
+                });
+            }
+
+            return createResponse(404, { message: 'Company not found' });
+        }
+
+        return createResponse(404, { message: 'Endpoint not found' });
     } catch (error) {
         console.error('Error processing request:', error);
-        return createResponse(500, { 
-            message: 'Error fetching ESG data', 
+        return createResponse(500, {
+            message: 'Error fetching ESG data',
             error: error.message,
             stack: error.stack
         });
