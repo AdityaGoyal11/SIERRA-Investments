@@ -34,13 +34,16 @@ model.fit(X_train, y_train)
 # Save the Model
 model_dir = "model"
 os.makedirs(model_dir, exist_ok=True)
-model_path = os.path.join(model_dir, "xgboost-model.model")
-model.save_model(model_path)
+#model_path = os.path.join(model_dir, "xgboost-model.model")
+#model.save_model(model_path)
+json_model_path = os.path.join(model_dir, "xgboost-model.json")
+model.get_booster().save_model(json_model_path)
 
 # Package as tar.gz for SageMaker
 tar_model_path = "esg-model.tar.gz"
 with tarfile.open(tar_model_path, "w:gz") as tar:
-    tar.add(model_path, arcname="xgboost-model.model")
+    #tar.add(model_path, arcname="xgboost-model.model")
+    tar.add("model/xgboost-model.json", arcname="xgboost-model.json")
 
 # Upload Model to S3
 s3_bucket = "sierra-bucket-2025"
