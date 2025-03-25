@@ -6,8 +6,10 @@ const app = express();
 // Check if we're running locally or in the AWS cloud
 const isLocal = process.env.NODE_ENV === 'development';
 
+/** Prediction error: UnknownEndpoint: Inaccessible host: `sierra-bucket-2025.dynamodb-local' at port
+ `undefined'. This service may not be available in the `us-east-1' region.*/
 // Set up AWS (modify this based on if we're running locally or in AWS)
-if (isLocal) {
+/**if (isLocal) {
     // If we're running locally, connect to our fake AWS setup
     AWS.config.update({
         region: 'us-east-1',
@@ -24,7 +26,14 @@ if (isLocal) {
     AWS.config.update({
         region: 'us-east-1'
     });
+}*/
+
+if (isLocal) {
+    process.env.AWS_REGION = 'us-east-1';
+    process.env.AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || 'fake-key';
+    process.env.AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || 'fake-secret';
 }
+
 
 // Use json in express to handle data
 app.use(express.json());

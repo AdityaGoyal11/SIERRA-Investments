@@ -4,6 +4,6 @@ resource "aws_sagemaker_model" "esg_model" {
 
   primary_container {
     image = "811284229777.dkr.ecr.us-east-1.amazonaws.com/xgboost:1"  # XGBoost container
-    model_data_url = "s3://sierra-bucket-2025/models/esg-model.tar.gz"  # trained model location
+    model_data_url = "s3://sierra-bucket-2025/models/esg-model.tar.gz" 
   }
 }

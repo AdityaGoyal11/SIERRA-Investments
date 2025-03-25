@@ -2,7 +2,7 @@ import xgboost as xgb
 import numpy as np
 
 model = xgb.XGBRegressor()
-model.load_model("model/xgboost-model.model")
+model.load_model("model/xgboost-model.json")
 
 
 X = np.array([[30, 28, 27]])

@@ -1,10 +1,13 @@
 const express = require('express');
-const AWS = require('aws-sdk');
+const AWS = require("aws-sdk");
+
+const dynamodb = new AWS.DynamoDB.DocumentClient({
+    endpoint: "http://dynamodb-local:8000",
+    region: "us-east-1"
+});  
 
 const router = express.Router();
 
-// Set up our connection to DynamoDB
-const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 // Root ESG endpoint
 router.get('/', (req, res) => {
