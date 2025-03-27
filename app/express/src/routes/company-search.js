@@ -24,21 +24,21 @@ router.get('/:name', async (req, res) => {
         // Get all data from DynamoDB with pagination
         let allItems = [];
         let lastEvaluatedKey = null;
-        
+
         while (true) {
             try {
                 const params = {
                     TableName: 'esg_processed'
                 };
-                
+
                 if (lastEvaluatedKey) {
                     params.ExclusiveStartKey = lastEvaluatedKey;
                 }
-                
+
                 const data = await dynamodb.scan(params).promise();
                 allItems = allItems.concat(data.Items);
                 lastEvaluatedKey = data.LastEvaluatedKey;
-                
+
                 if (!lastEvaluatedKey) {
                     break;
                 }
@@ -48,7 +48,7 @@ router.get('/:name', async (req, res) => {
             }
         }
 
-        const matchingItems = allItems.filter(item => {
+        const matchingItems = allItems.filter((item) => {
             const companyName = item.company_name.toLowerCase();
             return companyName.includes(companyNameQuery);
         });
@@ -60,24 +60,33 @@ router.get('/:name', async (req, res) => {
         // Group by company name and get the most recent record for each
         const latestRecords = {};
         matchingItems.forEach((item) => {
-            if (!latestRecords[item.company_name] || 
-                new Date(item.timestamp) > new Date(latestRecords[item.company_name].timestamp)) {
-                latestRecords[item.company_name] = item;
+            const cName = item.company_name;
+            if (!latestRecords[cName]
+                || new Date(item.timestamp) > new Date(latestRecords[cName].timestamp)) {
+                latestRecords[cName] = item;
             }
         });
 
         // Convert to array and sort by company name
-        const companies = Object.values(latestRecords).sort((a, b) => 
-            a.company_name.localeCompare(b.company_name)
-        );
+        const companies = Object.values(latestRecords);
+        // Bubble sort implementation for company names
+        // Cant reduce line length to < 100 with the built in sort function WTF
+        for (let i = 0; i < companies.length - 1; i += 1) {
+            for (let j = 0; j < companies.length - i - 1; j += 1) {
+                if (companies[j].company_name > companies[j + 1].company_name) {
+                    const temp = companies[j];
+                    companies[j] = companies[j + 1];
+                    companies[j + 1] = temp;
+                }
+            }
+        }
 
         return res.json({
             companyNameQuery,
             companies
         });
-
     } catch (error) {
-        return res.status(500).json({ 
+        return res.status(500).json({
             message: 'Internal Server Error',
             error: error.message
         });

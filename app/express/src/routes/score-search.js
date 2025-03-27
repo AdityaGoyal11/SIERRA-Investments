@@ -38,7 +38,7 @@ router.get('/greater/:scoreType/:score', async (req, res) => {
         // Look in the esg_processed table in DynamoDB (both AWS and local)
         TableName: 'esg_processed',
         ExpressionAttributeValues: {
-            ':score': parseInt(score)
+            ':score': parseInt(score, 10)
         },
         FilterExpression: '#scoreType >= :score',
         ExpressionAttributeNames: {
@@ -100,7 +100,7 @@ router.get('/lesser/:scoreType/:score', async (req, res) => {
             '#scoreType': scoreType
         },
         ExpressionAttributeValues: {
-            ':score': parseInt(score)
+            ':score': parseInt(score, 10)
         }
     };
 
@@ -162,8 +162,8 @@ router.get('/:scoreType/:score1/:score2', async (req, res) => {
             '#scoreType': scoreType
         },
         ExpressionAttributeValues: {
-            ':score1': parseInt(score1),
-            ':score2': parseInt(score2)
+            ':score1': parseInt(score1, 10),
+            ':score2': parseInt(score2, 10)
         }
     };
 
