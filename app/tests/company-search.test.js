@@ -66,6 +66,24 @@ describe('Company Search API Tests', () => {
             });
         });
 
+        test('Companies should be sorted alphabetically', async () => {
+            const mockResponse = {
+                Items: [
+                    { company_name: 'Zebra Corp', timestamp: '2024-03-14' },
+                    { company_name: 'Apple Inc', timestamp: '2024-03-14' },
+                    { company_name: 'Microsoft Corp', timestamp: '2024-03-14' }
+                ]
+            };
+            dynamoDb.promise.mockResolvedValue(mockResponse);
+            
+            const res = await request(app).get('/api/search/company/corp');
+            
+            expect(res.body.companies).toEqual([
+                expect.objectContaining({ company_name: 'Microsoft Corp' }),
+                expect.objectContaining({ company_name: 'Zebra Corp' })
+            ]);
+        });
+
         test('Case-insensitive search should return correct result', async () => {
             const mockResponse = {
                 Items: [
