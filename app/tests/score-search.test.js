@@ -12,7 +12,7 @@ jest.mock('aws-sdk', () => {
             DocumentClient: jest.fn(() => mockDynamoDb)
         },
         config: {
-            update: jest.fn() // Ensures AWS.config.update() doesn't cause errors
+            update: jest.fn()
         }
     };
 });

@@ -45,7 +45,10 @@ router.get('/total_level/:rating', async (req, res) => {
             // If the ticker is not in the dictionary, or this item has a later timestamp
             if (!latestRecords[item.ticker]
                 || new Date(item.timestamp) > new Date(latestRecords[item.ticker].timestamp)) {
-                latestRecords[item.ticker] = item;
+                latestRecords[item.ticker] = {
+                    ...item,
+                    company_name: item.company_name
+                };
             }
         });
 

@@ -38,6 +38,7 @@ router.get('/:ticker', async (req, res) => {
             // Return all historical entries for this ticker
             res.json({
                 ticker,
+                company_name: data.Items[0].company_name,
                 historical_ratings: data.Items
             });
         } else {
