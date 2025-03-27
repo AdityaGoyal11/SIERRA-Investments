@@ -5,7 +5,7 @@ const AWS = require('aws-sdk');
 const dynamodb = new AWS.DynamoDB({
     region: 'us-east-1',
     // Our local DynamoDB address
-    endpoint: 'http://dynamodb-local:8000',
+    endpoint: 'http://localhost:8000',
     credentials: {
         // Fake key for local testing
         accessKeyId: 'local',
@@ -31,7 +31,9 @@ const params = {
         { AttributeName: 'ticker', AttributeType: 'S' },
         { AttributeName: 'timestamp', AttributeType: 'S' },
         { AttributeName: 'total_score', AttributeType: 'N' },
-        { AttributeName: 'last_processed_date', AttributeType: 'S' }
+        { AttributeName: 'last_processed_date', AttributeType: 'S' },
+        { AttributeName: 'rating', AttributeType: 'S' },
+        { AttributeName: 'company_name', AttributeType: 'S' }
     ],
     GlobalSecondaryIndexes: [
         // Searching data using secondary index/attributes which isnt ticker or timestamp
@@ -53,6 +55,26 @@ const params = {
             KeySchema: [
                 { AttributeName: 'last_processed_date', KeyType: 'HASH' },
                 { AttributeName: 'ticker', KeyType: 'RANGE' }
+            ],
+            Projection: {
+                ProjectionType: 'ALL'
+            }
+        },
+        {
+            IndexName: 'RatingIndex',
+            KeySchema: [
+                { AttributeName: 'rating', KeyType: 'HASH' },
+                { AttributeName: 'timestamp', KeyType: 'RANGE' }
+            ],
+            Projection: {
+                ProjectionType: 'ALL'
+            }
+        },
+        {
+            IndexName: 'CompanyNameIndex',
+            KeySchema: [
+                { AttributeName: 'company_name', KeyType: 'HASH' },
+                { AttributeName: 'timestamp', KeyType: 'RANGE' }
             ],
             Projection: {
                 ProjectionType: 'ALL'

@@ -5,7 +5,7 @@ import os
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 app_dir = os.path.dirname(script_dir)
-csv_filename = os.path.join(app_dir, "data", "historical_esg_data.csv")
+csv_filename = os.path.join(app_dir, "data", "historical_esg_data_new.csv")
 
 def is_valid_row(row):
     required_fields = ['total_score', 'environment_score', 'social_score', 'governance_score']
@@ -65,7 +65,7 @@ def process_csv_file(csv_file):
     # Save the cleaned CSV file
     output_directory = os.path.join(app_dir, "processed_data")
     os.makedirs(output_directory, exist_ok=True)
-    output_file = os.path.join(output_directory, "processed_historical_esg_data.csv")
+    output_file = os.path.join(output_directory, "processed_historical_esg_data_new.csv")
     print(f"Saving processed CSV to: {output_file}")
 
     df.to_csv(output_file, index=False)

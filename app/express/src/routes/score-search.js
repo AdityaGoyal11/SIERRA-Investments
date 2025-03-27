@@ -38,13 +38,12 @@ router.get('/greater/:scoreType/:score', async (req, res) => {
         // Look in the esg_processed table in DynamoDB (both AWS and local)
         TableName: 'esg_processed',
         ExpressionAttributeValues: {
-            ':score': score
+            ':score': parseInt(score)
         },
+        FilterExpression: '#scoreType >= :score',
         ExpressionAttributeNames: {
             '#scoreType': scoreType
-        },
-        KeyConditionExpression: '#scoreType >= :score',
-        ScanIndexForward: false
+        }
     };
 
     try {
@@ -57,6 +56,7 @@ router.get('/greater/:scoreType/:score', async (req, res) => {
             if (item[scoreType] >= score) {
                 validCompanies.push({
                     ticker: item.ticker,
+                    company_name: item.company_name,
                     score: item[scoreType],
                     timestamp: item.timestamp
                 });
@@ -95,14 +95,13 @@ router.get('/lesser/:scoreType/:score', async (req, res) => {
     const params = {
         // Look in the esg_processed table in DynamoDB (both AWS and local)
         TableName: 'esg_processed',
-        ExpressionAttributeValues: {
-            ':score': score
-        },
+        FilterExpression: '#scoreType <= :score',
         ExpressionAttributeNames: {
             '#scoreType': scoreType
         },
-        KeyConditionExpression: '#scoreType <= :score',
-        ScanIndexForward: false
+        ExpressionAttributeValues: {
+            ':score': parseInt(score)
+        }
     };
 
     try {
@@ -115,6 +114,7 @@ router.get('/lesser/:scoreType/:score', async (req, res) => {
             if (item[scoreType] <= score) {
                 validCompanies.push({
                     ticker: item.ticker,
+                    company_name: item.company_name,
                     score: item[scoreType],
                     timestamp: item.timestamp
                 });
@@ -157,15 +157,14 @@ router.get('/:scoreType/:score1/:score2', async (req, res) => {
     const params = {
         // Look in the esg_processed table in DynamoDB (both AWS and local)
         TableName: 'esg_processed',
-        ExpressionAttributeValues: {
-            ':score1': score1,
-            ':score2': score2
-        },
+        FilterExpression: '#scoreType BETWEEN :score1 AND :score2',
         ExpressionAttributeNames: {
             '#scoreType': scoreType
         },
-        FilterExpression: '#scoreType BETWEEN :score1 AND :score2',
-        ScanIndexForward: false
+        ExpressionAttributeValues: {
+            ':score1': parseInt(score1),
+            ':score2': parseInt(score2)
+        }
     };
 
     try {
@@ -178,6 +177,7 @@ router.get('/:scoreType/:score1/:score2', async (req, res) => {
             if (item[scoreType] >= score1 && item[scoreType] <= score2) {
                 validCompanies.push({
                     ticker: item.ticker,
+                    company_name: item.company_name,
                     score: item[scoreType],
                     timestamp: item.timestamp
                 });

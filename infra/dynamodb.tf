@@ -32,6 +32,11 @@ resource "aws_dynamodb_table" "esg_processed" {
         type = "S"
     }
 
+    attribute {
+        name = "company_name"
+        type = "S"
+    }
+
     global_secondary_index {
         name = "ScoreIndex"
         hash_key = "total_score"
@@ -49,6 +54,13 @@ resource "aws_dynamodb_table" "esg_processed" {
     global_secondary_index {
         name = "RatingIndex"
         hash_key = "rating"
+        range_key = "timestamp"
+        projection_type = "ALL"
+    }
+
+    global_secondary_index {
+        name = "CompanyNameIndex"
+        hash_key = "company_name"
         range_key = "timestamp"
         projection_type = "ALL"
     }
