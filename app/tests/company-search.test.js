@@ -75,9 +75,7 @@ describe('Company Search API Tests', () => {
                 ]
             };
             dynamoDb.promise.mockResolvedValue(mockResponse);
-            
             const res = await request(app).get('/api/search/company/corp');
-            
             expect(res.body.companies).toEqual([
                 expect.objectContaining({ company_name: 'Microsoft Corp' }),
                 expect.objectContaining({ company_name: 'Zebra Corp' })
