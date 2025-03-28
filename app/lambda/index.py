@@ -8,7 +8,7 @@ from dateutil import parser
 
 def is_valid_row(row):
     # Check if a row has all required scores
-    required_fields = ['total_score', 'environment_score', 'social_score', 'governance_score']
+    required_fields = ['total_score', 'environment_score', 'social_score', 'governance_score', 'company_name']
     try:
         return all(pd.notna(row[field]) for field in required_fields)
     except KeyError:
@@ -174,7 +174,8 @@ def handler(event, context):
                             'environmental_score': int(float(row['environment_score'])),
                             'social_score': int(float(row['social_score'])),
                             'governance_score': int(float(row['governance_score'])),
-                            'rating': rating(total_score)
+                            'rating': rating(total_score),
+                            'company_name': str(row['company_name'])
                         }
                     
                         # Write to DynamoDB using batch writer

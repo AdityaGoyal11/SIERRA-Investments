@@ -16,7 +16,7 @@ const dynamodb = new AWS.DynamoDB.DocumentClient({
 
 // Function to check if a row has all required scores
 const isValidRow = (record) => {
-    const requiredFields = ['total_score', 'environment_score', 'social_score', 'governance_score'];
+    const requiredFields = ['total_score', 'environment_score', 'social_score', 'governance_score', 'company_name'];
     return requiredFields.every((field) => record[field] && record[field].trim() !== '');
 };
 
@@ -48,6 +48,7 @@ const transformData = (records) => records
     .filter(isValidRow)
     .map((record) => ({
         ticker: record.ticker?.toLowerCase(),
+        company_name: record.company_name,
         timestamp: record.timestamp,
         last_processed_date: record.last_processing_date,
         total_score: parseInt(record.total_score, 10),
