@@ -5,15 +5,14 @@ const AWS = require('aws-sdk');
 jest.mock('aws-sdk', () => {
     const mockDynamoDb = {
         scan: jest.fn().mockReturnThis(),
-        query: jest.fn().mockReturnThis(),
         promise: jest.fn()
     };
     return {
+        config: {
+            update: jest.fn(() => {})
+        },
         DynamoDB: {
             DocumentClient: jest.fn(() => mockDynamoDb)
-        },
-        config: {
-            update: jest.fn()
         }
     };
 });
@@ -33,63 +32,85 @@ describe('Company Search API Tests', () => {
             const mockResponse = {
                 Items: [
                     {
-                        name: 'Example Name',
                         ticker: 'luv',
+                        company_name: 'Southwest Airlines Co',
                         timestamp: '2024-03-14',
-                        environment_score: 9,
-                        social_score: 13,
-                        governance_score: 5,
                         total_score: 28,
-                        rating: 'C',
-                        last_processed_date: '2024-03-14'
+                        rating: 'C'
+                    },
+                    {
+                        ticker: 'luv',
+                        company_name: 'Southwest Airlines Co',
+                        timestamp: '2024-02-14',
+                        total_score: 25,
+                        rating: 'C'
                     }
                 ]
             };
-            dynamoDb.scan.mockReturnThis();
+
             dynamoDb.promise.mockResolvedValue(mockResponse);
 
-            const res = await request(app).get('/api/search/company/example name');
+            const res = await request(app).get('/api/search/company/southwest');
 
             expect(res.status).toBe(200);
             expect(res.body).toBeDefined();
-            expect(res.body.ticker).toBe('luv');
-            expect(res.body.name).toBe('Example Name');
-            expect(res.body.environment_score).toBe(9);
-            expect(res.body.social_score).toBe(13);
-            expect(res.body.governance_score).toBe(5);
-            expect(res.body.total_score).toBe(28);
-            expect(res.body.rating).toBe('C');
+            expect(res.body.companyNameQuery).toBe('southwest');
+            // Should only return latest record
+            expect(res.body.companies).toHaveLength(1);
+            expect(res.body.companies[0]).toMatchObject({
+                ticker: 'luv',
+                company_name: 'Southwest Airlines Co',
+                timestamp: '2024-03-14',
+                total_score: 28,
+                rating: 'C'
+            });
+        });
+
+        test('Companies should be sorted alphabetically', async () => {
+            const mockResponse = {
+                Items: [
+                    { company_name: 'Zebra Corp', timestamp: '2024-03-14' },
+                    { company_name: 'Apple Inc', timestamp: '2024-03-14' },
+                    { company_name: 'Microsoft Corp', timestamp: '2024-03-14' }
+                ]
+            };
+            dynamoDb.promise.mockResolvedValue(mockResponse);
+            const res = await request(app).get('/api/search/company/corp');
+            expect(res.body.companies).toEqual([
+                expect.objectContaining({ company_name: 'Microsoft Corp' }),
+                expect.objectContaining({ company_name: 'Zebra Corp' })
+            ]);
         });
 
         test('Case-insensitive search should return correct result', async () => {
             const mockResponse = {
                 Items: [
                     {
-                        name: 'Example Name',
                         ticker: 'luv',
+                        company_name: 'Southwest Airlines Co',
                         timestamp: '2024-03-14',
-                        environment_score: 9,
-                        social_score: 13,
-                        governance_score: 5,
                         total_score: 28,
-                        rating: 'C',
-                        last_processed_date: '2024-03-14'
+                        rating: 'C'
                     }
                 ]
             };
-            dynamoDb.scan.mockReturnThis();
+
             dynamoDb.promise.mockResolvedValue(mockResponse);
 
-            const res = await request(app).get('/api/search/company/EXAMPLE NAME');
+            const res = await request(app).get('/api/search/company/SOUTHWEST');
 
             expect(res.status).toBe(200);
-            expect(res.body.ticker).toBe('luv');
-            expect(res.body.name).toBe('Example Name');
+            expect(res.body.companyNameQuery).toBe('southwest');
+            expect(res.body.companies).toHaveLength(1);
+            expect(res.body.companies[0]).toMatchObject({
+                ticker: 'luv',
+                company_name: 'Southwest Airlines Co'
+            });
         });
 
         test('Non-existent company should return 404', async () => {
             const mockResponse = { Items: [] };
-            dynamoDb.scan.mockReturnThis();
+
             dynamoDb.promise.mockResolvedValue(mockResponse);
 
             const res = await request(app).get('/api/search/company/nonexistent');
@@ -100,54 +121,51 @@ describe('Company Search API Tests', () => {
 
         test('Server error should return 500', async () => {
             // Force DynamoDB to reject with an error
-            dynamoDb.scan.mockReturnThis();
             dynamoDb.promise.mockRejectedValue(new Error('DynamoDB scan failed'));
 
-            const res = await request(app).get('/api/search/company/example name');
+            const res = await request(app).get('/api/search/company/apple');
 
             expect(res.status).toBe(500);
-            expect(res.body).toEqual({ message: 'Internal Server Error' });
+            expect(res.body).toEqual({
+                message: 'Internal Server Error',
+                error: 'DynamoDB scan failed'
+            });
         });
-        test('Company in mapping but no DynamoDB data should continue to fallback search', async () => {
-            // aapl in mapping but not in dynamodb, scan entire db to find match
-            // using aapl example because it's in the mapping (its not in S&P 500 though)
-            // but same concept applies to a company in S&P 500 that is not in the mapping
-            dynamoDb.query.mockReturnValueOnce({
-                promise: jest.fn().mockResolvedValue({ Items: [] })
-            });
-            dynamoDb.scan.mockReturnValueOnce({
-                promise: jest.fn().mockResolvedValue({
-                    Items: [
-                        {
-                            ticker: 'aapl',
-                            name: 'apple',
-                            timestamp: '2024-03-14',
-                            total_score: 25
-                        }
-                    ]
-                })
-            });
 
-            const res = await request(app).get('/api/search/company/apple');
+        test('Multiple companies should be deduplicated and sorted', async () => {
+            const mockResponse = {
+                Items: [
+                    {
+                        ticker: 'aapl',
+                        company_name: 'Apple Inc',
+                        timestamp: '2024-03-14',
+                        total_score: 85,
+                        rating: 'A'
+                    },
+                    {
+                        ticker: 'aapl',
+                        company_name: 'Apple Inc',
+                        timestamp: '2024-02-14',
+                        total_score: 82,
+                        rating: 'A'
+                    },
+                    {
+                        ticker: 'msft',
+                        company_name: 'Microsoft Corporation',
+                        timestamp: '2024-03-14',
+                        total_score: 78,
+                        rating: 'B'
+                    }
+                ]
+            };
+
+            dynamoDb.promise.mockResolvedValue(mockResponse);
+
+            const res = await request(app).get('/api/search/company/inc');
 
             expect(res.status).toBe(200);
-            expect(res.body.ticker).toBe('aapl');
-        });
-
-        test('Company in mapping but no data in either lookup should return 404', async () => {
-            // Need to mock query for ticker lookup, then scan for reason mentioned in test prior
-            // using apple as example because it's in the mapping and has no data in either lookup
-            dynamoDb.query.mockReturnValueOnce({
-                promise: jest.fn().mockResolvedValue({ Items: [] })
-            });
-            dynamoDb.scan.mockReturnValueOnce({
-                promise: jest.fn().mockResolvedValue({ Items: [] })
-            });
-
-            const res = await request(app).get('/api/search/company/apple');
-
-            expect(res.status).toBe(404);
-            expect(res.body).toEqual({ message: 'Company not found' });
+            expect(res.body.companies).toHaveLength(1);
+            expect(res.body.companies[0].company_name).toBe('Apple Inc');
         });
     });
 });
