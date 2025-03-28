@@ -162,7 +162,7 @@ exports.handler = async (event) => {
             const params = {
                 TableName: process.env.DYNAMODB_TABLE || 'esg_processed',
                 ExpressionAttributeValues: {
-                    ':score': parseInt(score)
+                    ':score': parseInt(score, 10)
                 },
                 FilterExpression: '#scoreType >= :score',
                 ExpressionAttributeNames: {
@@ -318,8 +318,8 @@ exports.handler = async (event) => {
 
         // Handle /api/search/company/{name} endpoint
         if (event.path.includes('/api/search/company/') && event.httpMethod === 'GET') {
-            const companyNameQuery = decodeURIComponent(event.pathParameters.name.toLowerCase().trim());
-            console.log(`Handling /api/search/company/${companyNameQuery} request`);
+            const cNameQuery = decodeURIComponent(event.pathParameters.name.toLowerCase().trim());
+            console.log(`Handling /api/search/company/${cNameQuery} request`);
 
             // Get all data from DynamoDB with pagination
             let allItems = [];
@@ -354,7 +354,7 @@ exports.handler = async (event) => {
             const matchingItems = allItems.filter((item) => {
                 if (!item.company_name) return false;
                 const companyName = item.company_name.toLowerCase();
-                return companyName.includes(companyNameQuery);
+                return companyName.includes(cNameQuery);
             });
 
             console.log(`Found ${matchingItems.length} matching items after filtering`);
@@ -388,7 +388,7 @@ exports.handler = async (event) => {
             }
 
             return createResponse(200, {
-                companyNameQuery,
+                cNameQuery,
                 companies
             });
         }
