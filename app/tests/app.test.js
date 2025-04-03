@@ -198,6 +198,20 @@ describe('Testing express/src/app.js', () => {
             expect(response.body).toBeInstanceOf(Object);
         });
 
+        test('should return 404 for non-existent ticker', async () => {
+            const mockResponse = {
+                Items: []
+            };
+
+            const dynamoDb = new AWS.DynamoDB.DocumentClient();
+            dynamoDb.promise.mockResolvedValue(mockResponse);
+
+            const response = await request(app).get('/api/all');
+
+            expect(response.status).toBe(404);
+            expect(response.body).toEqual({ message: 'No ESG data found' });
+        });
+
         test('should return 500 for DynamoDB error when fetching all ESG data', async () => {
             const dynamoDb = new AWS.DynamoDB.DocumentClient();
             const error = new Error('DynamoDB error');
@@ -208,5 +222,76 @@ describe('Testing express/src/app.js', () => {
             expect(response.status).toBe(500);
             expect(response.body).toEqual({ message: 'Error fetching ESG data', error: error.message });
         });
+    });
+
+    describe('Testing api/v2/esg/recent/:ticker Routes', () => {
+        test('should return most recent ESG data', async () => {
+            const mockResponse = {
+                Items: [
+                    {
+                        ticker: 'dis',
+                        timestamp: '2023-03-12',
+                        last_processed_date: '2023-03-12',
+                        total_score: 82,
+                        environmental_score: 78,
+                        social_score: 88,
+                        governance_score: 80
+                    },
+                    {
+                        ticker: 'dis',
+                        timestamp: '2024-03-12',
+                        last_processed_date: '2024-03-12',
+                        total_score: 85,
+                        environmental_score: 80,
+                        social_score: 90,
+                        governance_score: 85
+                    }
+                ]
+            };
+
+            const expectedResponse = {
+                ticker: 'dis',
+                timestamp: '2024-03-12',
+                last_processed_date: '2024-03-12',
+                total_score: 85,
+                environmental_score: 80,
+                social_score: 90,
+                governance_score: 85
+            };
+
+            const dynamoDb = new AWS.DynamoDB.DocumentClient();
+
+            dynamoDb.promise.mockResolvedValue(mockResponse);
+            const response = await request(app).get('/api/v2/esg/recent/dis');
+
+            expect(response.status).toBe(200);
+            expect(response.body).toBeDefined();
+            expect(response.body).toStrictEqual(expectedResponse);
+        });
+    });
+
+    test('should return 404 for non-existent ticker', async () => {
+        const mockResponse = {
+            Items: []
+        };
+
+        const dynamoDb = new AWS.DynamoDB.DocumentClient();
+        dynamoDb.promise.mockResolvedValue(mockResponse);
+
+        const response = await request(app).get('/api/v2/esg/recent/nonexistent');
+
+        expect(response.status).toBe(404);
+        expect(response.body).toEqual({ message: 'No ESG data found for ticker: nonexistent' });
+    });
+
+    test('should return 500 for DynamoDB error when fetching all ESG data', async () => {
+        const dynamoDb = new AWS.DynamoDB.DocumentClient();
+        const error = new Error('DynamoDB error');
+        dynamoDb.promise.mockRejectedValue(error);
+
+        const response = await request(app).get('/api/v2/esg/recent/dis');
+
+        expect(response.status).toBe(500);
+        expect(response.body).toEqual({ message: 'Error fetching ESG data', error: error.message });
     });
 });
