@@ -25,7 +25,7 @@ router.get('/:name', async (req, res) => {
         let allItems = [];
         let lastEvaluatedKey = null;
 
-        while (true) {
+        do {
             try {
                 const params = {
                     TableName: 'esg_processed'
@@ -38,15 +38,11 @@ router.get('/:name', async (req, res) => {
                 const data = await dynamodb.scan(params).promise();
                 allItems = allItems.concat(data.Items);
                 lastEvaluatedKey = data.LastEvaluatedKey;
-
-                if (!lastEvaluatedKey) {
-                    break;
-                }
             } catch (error) {
                 console.error('Error scanning DynamoDB:', error);
                 throw error;
             }
-        }
+        } while (lastEvaluatedKey);
 
         const matchingItems = allItems.filter((item) => {
             const companyName = item.company_name.toLowerCase();
