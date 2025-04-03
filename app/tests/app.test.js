@@ -224,7 +224,7 @@ describe('Testing express/src/app.js', () => {
         });
     });
 
-    describe('Testing api/esg/recent/:ticker Routes', () => {
+    describe('Testing api/v2/esg/recent/:ticker Routes', () => {
         test('should return most recent ESG data', async () => {
             const mockResponse = {
                 Items: [
@@ -262,7 +262,7 @@ describe('Testing express/src/app.js', () => {
             const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
             dynamoDb.promise.mockResolvedValue(mockResponse);
-            const response = await request(app).get('/api/esg/recent/dis');
+            const response = await request(app).get('/api/v2/esg/recent/dis');
 
             expect(response.status).toBe(200);
             expect(response.body).toBeDefined();
@@ -278,7 +278,7 @@ describe('Testing express/src/app.js', () => {
         const dynamoDb = new AWS.DynamoDB.DocumentClient();
         dynamoDb.promise.mockResolvedValue(mockResponse);
 
-        const response = await request(app).get('/api/esg/recent/nonexistent');
+        const response = await request(app).get('/api/v2/esg/recent/nonexistent');
 
         expect(response.status).toBe(404);
         expect(response.body).toEqual({ message: 'No ESG data found for ticker: nonexistent' });
@@ -289,7 +289,7 @@ describe('Testing express/src/app.js', () => {
         const error = new Error('DynamoDB error');
         dynamoDb.promise.mockRejectedValue(error);
 
-        const response = await request(app).get('/api/esg/recent/dis');
+        const response = await request(app).get('/api/v2/esg/recent/dis');
 
         expect(response.status).toBe(500);
         expect(response.body).toEqual({ message: 'Error fetching ESG data', error: error.message });
