@@ -18,40 +18,6 @@ const createResponse = (statusCode, body) => ({
     body: JSON.stringify(body)
 });
 
-// Our dataset doesn't include company names, so we're using a hard-coded mapping
-const companyNameToTicker = {
-    'texas instruments': 'txn',
-    'coca-cola': 'ko',
-    'coca cola': 'ko',
-    pepsi: 'pep',
-    pepsico: 'pep',
-    'procter & gamble': 'pg',
-    'procter and gamble': 'pg',
-    walmart: 'wmt',
-    costco: 'cost',
-    target: 'tgt',
-    'home depot': 'hd',
-    mcdonalds: 'mcd',
-    'mcdonald\'s': 'mcd',
-    starbucks: 'sbux',
-    nike: 'nke',
-    'jpmorgan chase': 'jpm',
-    jpmorgan: 'jpm',
-    'bank of america': 'bac',
-    'wells fargo': 'wfc',
-    'goldman sachs': 'gs',
-    'morgan stanley': 'ms',
-    'american express': 'axp',
-    amex: 'axp',
-    visa: 'v',
-    mastercard: 'ma',
-    'johnson & johnson': 'jnj',
-    'johnson and johnson': 'jnj',
-    pfizer: 'pfe',
-    merck: 'mrk',
-    abbvie: 'abbv'
-};
-
 exports.handler = async (event) => {
     console.log('Event received:', JSON.stringify(event, null, 2));
 
@@ -73,6 +39,7 @@ exports.handler = async (event) => {
         const { score1 } = pathParameters;
         const { score2 } = pathParameters;
         const { rating } = pathParameters;
+        const { name } = pathParameters;
 
         console.log('Extracted Parameters:', {
             ticker,
@@ -80,7 +47,8 @@ exports.handler = async (event) => {
             score,
             score1,
             score2,
-            rating
+            rating,
+            name
         });
 
         // /api/all endpoint (to match Express routes in esg-data.js)
@@ -122,6 +90,7 @@ exports.handler = async (event) => {
             if (data.Items && data.Items.length > 0) {
                 return createResponse(200, {
                     ticker,
+                    company_name: data.Items[0].company_name,
                     historical_ratings: data.Items
                 });
             }
@@ -157,12 +126,13 @@ exports.handler = async (event) => {
             // Group by Ticker and Keep the Latest Record
             const latestRecords = {};
             data.Items.forEach((item) => {
-                const itemTicker = item.ticker;
-
                 // If the ticker is not in the dictionary, or this item has a later timestamp
-                if (!latestRecords[itemTicker] || new Date(item.timestamp)
-                    > new Date(latestRecords[itemTicker].timestamp)) {
-                    latestRecords[itemTicker] = item;
+                if (!latestRecords[item.ticker]
+                    || new Date(item.timestamp) > new Date(latestRecords[item.ticker].timestamp)) {
+                    latestRecords[item.ticker] = {
+                        ...item,
+                        company_name: item.company_name
+                    };
                 }
             });
 
@@ -192,24 +162,23 @@ exports.handler = async (event) => {
             const params = {
                 TableName: process.env.DYNAMODB_TABLE || 'esg_processed',
                 ExpressionAttributeValues: {
-                    ':score': Number(score)
-                },
-                ExpressionAttributeNames: {
-                    '#scoreType': scoreType
+                    ':score': parseInt(score, 10)
                 },
                 FilterExpression: '#scoreType >= :score',
-                ScanIndexForward: false
+                ExpressionAttributeNames: {
+                    '#scoreType': scoreType
+                }
             };
 
-            console.log('DynamoDB params:', JSON.stringify(params, null, 2));
             const data = await dynamodb.scan(params).promise();
-            console.log('DynamoDB response items count:', data.Items ? data.Items.length : 0);
 
             const validCompanies = [];
+
             data.Items.forEach((item) => {
                 if (item[scoreType] >= Number(score)) {
                     validCompanies.push({
                         ticker: item.ticker,
+                        company_name: item.company_name,
                         score: item[scoreType],
                         timestamp: item.timestamp
                     });
@@ -260,10 +229,12 @@ exports.handler = async (event) => {
             console.log('DynamoDB response items count:', data.Items ? data.Items.length : 0);
 
             const validCompanies = [];
+
             data.Items.forEach((item) => {
-                if (item[scoreType] <= Number(score)) {
+                if (item[scoreType] <= score) {
                     validCompanies.push({
                         ticker: item.ticker,
+                        company_name: item.company_name,
                         score: item[scoreType],
                         timestamp: item.timestamp
                     });
@@ -321,10 +292,12 @@ exports.handler = async (event) => {
             console.log('DynamoDB response items count:', data.Items ? data.Items.length : 0);
 
             const validCompanies = [];
+
             data.Items.forEach((item) => {
-                if (item[scoreType] >= Number(score1) && item[scoreType] <= Number(score2)) {
+                if (item[scoreType] >= score1 && item[scoreType] <= score2) {
                     validCompanies.push({
                         ticker: item.ticker,
+                        company_name: item.company_name,
                         score: item[scoreType],
                         timestamp: item.timestamp
                     });
@@ -345,53 +318,79 @@ exports.handler = async (event) => {
 
         // Handle /api/search/company/{name} endpoint
         if (event.path.includes('/api/search/company/') && event.httpMethod === 'GET') {
-            const companyName = decodeURIComponent(event.pathParameters.name.toLowerCase().trim());
-            console.log(`Handling /api/search/company/${companyName} request`);
+            const cNameQuery = decodeURIComponent(event.pathParameters.name.toLowerCase().trim());
+            console.log(`Handling /api/search/company/${cNameQuery} request`);
 
-            if (companyNameToTicker[companyName]) {
-                const companyTicker = companyNameToTicker[companyName];
-                const params = {
-                    TableName: process.env.DYNAMODB_TABLE || 'esg_processed',
-                    KeyConditionExpression: 'ticker = :ticker',
-                    ExpressionAttributeValues: {
-                        ':ticker': companyTicker
-                    },
-                    ScanIndexForward: false
-                };
-                console.log('DynamoDB params for ticker lookup:', JSON.stringify(params, null, 2));
-                const data = await dynamodb.query(params).promise();
-                console.log('DynamoDB response items count:', data.Items ? data.Items.length : 0);
-                if (data.Items && data.Items.length > 0) {
-                    // Return the first item withthe mapped name
-                    const result = data.Items[0];
-                    result.name = companyName;
-                    return createResponse(200, result);
+            // Get all data from DynamoDB with pagination
+            let allItems = [];
+            let lastEvaluatedKey = null;
+
+            while (true) {
+                try {
+                    const params = {
+                        TableName: process.env.DYNAMODB_TABLE || 'esg_processed'
+                    };
+
+                    if (lastEvaluatedKey) {
+                        params.ExclusiveStartKey = lastEvaluatedKey;
+                    }
+
+                    console.log('DynamoDB scan params:', JSON.stringify(params, null, 2));
+                    const data = await dynamodb.scan(params).promise();
+                    allItems = allItems.concat(data.Items);
+                    lastEvaluatedKey = data.LastEvaluatedKey;
+
+                    if (!lastEvaluatedKey) {
+                        break;
+                    }
+                } catch (error) {
+                    console.error('Error scanning DynamoDB:', error);
+                    throw error;
                 }
             }
-            // If not found in mapping, fall back to the original search
-            const params = {
-                TableName: process.env.DYNAMODB_TABLE || 'esg_processed',
-                FilterExpression: 'LOWER(#name) = :name',
-                ExpressionAttributeNames: {
-                    '#name': 'name'
-                },
-                ExpressionAttributeValues: {
-                    ':name': companyName
-                }
-            };
 
-            console.log('DynamoDB params:', JSON.stringify(params, null, 2));
-            const data = await dynamodb.scan(params).promise();
-            console.log('DynamoDB response items count:', data.Items ? data.Items.length : 0);
+            console.log(`Retrieved ${allItems.length} total items from DynamoDB`);
 
-            if (!data.Items || data.Items.length === 0) {
+            const matchingItems = allItems.filter((item) => {
+                if (!item.company_name) return false;
+                const companyName = item.company_name.toLowerCase();
+                return companyName.includes(cNameQuery);
+            });
+
+            console.log(`Found ${matchingItems.length} matching items after filtering`);
+
+            if (!matchingItems || matchingItems.length === 0) {
                 return createResponse(404, { message: 'Company not found' });
             }
 
-            // Sort it and return most recent one
-            const sorted = data.Items.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            // Group by company name and get the most recent record for each
+            const latestRecords = {};
+            matchingItems.forEach((item) => {
+                const cName = item.company_name;
+                if (!latestRecords[cName]
+                    || new Date(item.timestamp) > new Date(latestRecords[cName].timestamp)) {
+                    latestRecords[cName] = item;
+                }
+            });
 
-            return createResponse(200, sorted[0]);
+            // Convert to array and sort by company name
+            const companies = Object.values(latestRecords);
+            // Bubble sort implementation for company names
+            // Cant reduce line length to < 100 with the built in sort function WTF
+            for (let i = 0; i < companies.length - 1; i += 1) {
+                for (let j = 0; j < companies.length - i - 1; j += 1) {
+                    if (companies[j].company_name > companies[j + 1].company_name) {
+                        const temp = companies[j];
+                        companies[j] = companies[j + 1];
+                        companies[j + 1] = temp;
+                    }
+                }
+            }
+
+            return createResponse(200, {
+                cNameQuery,
+                companies
+            });
         }
 
         return createResponse(404, { message: 'Endpoint not found' });
