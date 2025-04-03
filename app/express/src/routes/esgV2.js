@@ -6,14 +6,8 @@ const router = express.Router();
 // Set up our connection to DynamoDB
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
-// Root ESG endpoint
-router.get('/', (req, res) => {
-    res.json({ message: 'ESG endpoint placeholder' });
-});
-
 // When someone wants to get ESG data for a specific company (like /api/esg/dis for Disney)
-router.get('/:ticker', async (req, res) => {
-    // Get the ticker from the URL ('dis' from /api/esg/dis)
+router.get('/recent/:ticker', async (req, res) => {
     const { ticker } = req.params;
 
     const params = {
@@ -35,11 +29,15 @@ router.get('/:ticker', async (req, res) => {
 
         // If data found, send it back
         if (data.Items && data.Items.length > 0) {
-            // Return all historical entries for this ticker
+            let recent = data.Items[0];
+            data.Items.forEach((item) => {
+                if (new Date(item.timestamp) > new Date(recent.timestamp)) {
+                    recent = item;
+                }
+            });
+
             res.json({
-                ticker,
-                company_name: data.Items[0].company_name,
-                historical_ratings: data.Items
+                ...recent
             });
         } else {
             res.status(404).json({ message: `No ESG data found for ticker: ${ticker}` });
@@ -48,6 +46,8 @@ router.get('/:ticker', async (req, res) => {
         console.error('Error:', error);
         res.status(500).json({ message: 'Error fetching ESG data', error: error.message });
     }
+
+    return res;
 });
 
 module.exports = router;
