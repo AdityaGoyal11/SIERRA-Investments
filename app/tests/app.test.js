@@ -184,8 +184,176 @@ describe('Testing express/src/app.js', () => {
                         environmental_score: 78,
                         social_score: 88,
                         governance_score: 80
+                    },
+                    {
+                        ticker: 'aapl',
+                        timestamp: '2024-04-11',
+                        last_processed_date: '2024-04-11',
+                        total_score: 85,
+                        environmental_score: 77,
+                        social_score: 92,
+                        governance_score: 80
+                    },
+                    {
+                        ticker: 'aapl',
+                        timestamp: '2023-04-11',
+                        last_processed_date: '2023-04-11',
+                        total_score: 70,
+                        environmental_score: 56,
+                        social_score: 80,
+                        governance_score: 75
+                    },
+                    {
+                        ticker: 'aapl',
+                        timestamp: '2022-05-19',
+                        last_processed_date: '2022-05-19',
+                        total_score: 49,
+                        environmental_score: 60,
+                        social_score: 40,
+                        governance_score: 30
+                    },
+                    {
+                        ticker: 'mcd',
+                        timestamp: '2023-12-09',
+                        last_processed_date: '2023-12-09',
+                        total_score: 80,
+                        environmental_score: 81,
+                        social_score: 79,
+                        governance_score: 80
+                    },
+                    {
+                        ticker: 'mcd',
+                        timestamp: '2022-05-07',
+                        last_processed_date: '2022-05-07',
+                        total_score: 52,
+                        environmental_score: 40,
+                        social_score: 33,
+                        governance_score: 60
+                    },
+                    {
+                        ticker: 'xom',
+                        timestamp: '2022-08-13',
+                        last_processed_date: '2022-08-13',
+                        total_score: 42,
+                        environmental_score: 60,
+                        social_score: 90,
+                        governance_score: 10
+                    },
+                    {
+                        ticker: 'xom',
+                        timestamp: '2023-04-11',
+                        last_processed_date: '2023-04-11',
+                        total_score: 69,
+                        environmental_score: 70,
+                        social_score: 68,
+                        governance_score: 70
+                    },
+                    {
+                        ticker: 'xom',
+                        timestamp: '2022-05-19',
+                        last_processed_date: '2022-05-19',
+                        total_score: 50,
+                        environmental_score: 25,
+                        social_score: 75,
+                        governance_score: 55
                     }
                 ]
+            };
+
+            const expectedResponse = {
+                data: [
+                    {
+                        ticker: 'dis',
+                        timestamp: '2024-03-12',
+                        last_processed_date: '2024-03-12',
+                        total_score: 85,
+                        environmental_score: 80,
+                        social_score: 90,
+                        governance_score: 85
+                    },
+                    {
+                        ticker: 'dis',
+                        timestamp: '2023-03-12',
+                        last_processed_date: '2023-03-12',
+                        total_score: 82,
+                        environmental_score: 78,
+                        social_score: 88,
+                        governance_score: 80
+                    },
+                    {
+                        ticker: 'aapl',
+                        timestamp: '2024-04-11',
+                        last_processed_date: '2024-04-11',
+                        total_score: 85,
+                        environmental_score: 77,
+                        social_score: 92,
+                        governance_score: 80
+                    },
+                    {
+                        ticker: 'aapl',
+                        timestamp: '2023-04-11',
+                        last_processed_date: '2023-04-11',
+                        total_score: 70,
+                        environmental_score: 56,
+                        social_score: 80,
+                        governance_score: 75
+                    },
+                    {
+                        ticker: 'aapl',
+                        timestamp: '2022-05-19',
+                        last_processed_date: '2022-05-19',
+                        total_score: 49,
+                        environmental_score: 60,
+                        social_score: 40,
+                        governance_score: 30
+                    },
+                    {
+                        ticker: 'mcd',
+                        timestamp: '2023-12-09',
+                        last_processed_date: '2023-12-09',
+                        total_score: 80,
+                        environmental_score: 81,
+                        social_score: 79,
+                        governance_score: 80
+                    },
+                    {
+                        ticker: 'mcd',
+                        timestamp: '2022-05-07',
+                        last_processed_date: '2022-05-07',
+                        total_score: 52,
+                        environmental_score: 40,
+                        social_score: 33,
+                        governance_score: 60
+                    },
+                    {
+                        ticker: 'xom',
+                        timestamp: '2022-08-13',
+                        last_processed_date: '2022-08-13',
+                        total_score: 42,
+                        environmental_score: 60,
+                        social_score: 90,
+                        governance_score: 10
+                    },
+                    {
+                        ticker: 'xom',
+                        timestamp: '2023-04-11',
+                        last_processed_date: '2023-04-11',
+                        total_score: 69,
+                        environmental_score: 70,
+                        social_score: 68,
+                        governance_score: 70
+                    },
+                    {
+                        ticker: 'xom',
+                        timestamp: '2022-05-19',
+                        last_processed_date: '2022-05-19',
+                        total_score: 50,
+                        environmental_score: 25,
+                        social_score: 75,
+                        governance_score: 55
+                    }
+                ],
+                message: 'All ESG data retrieved successfully'
             };
 
             const dynamoDb = new AWS.DynamoDB.DocumentClient();
@@ -196,6 +364,7 @@ describe('Testing express/src/app.js', () => {
             expect(response.status).toBe(200);
             expect(response.body).toBeDefined();
             expect(response.body).toBeInstanceOf(Object);
+            expect(response.body).toStrictEqual(expectedResponse);
         });
 
         test('should return 404 for non-existent ticker', async () => {
