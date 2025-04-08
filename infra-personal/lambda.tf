@@ -16,6 +16,7 @@ resource "aws_lambda_function" "esg_etl" {
   environment {
     variables = {
       DYNAMODB_TABLE = aws_dynamodb_table.esg_processed.name
+      SAGEMAKER_ENDPOINT = "esg-xgboost-endpoint-v3"
     }
   }
 }

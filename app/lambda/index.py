@@ -6,6 +6,8 @@ from datetime import datetime
 import pytz
 from dateutil import parser
 
+sagemaker = boto3.client("sagemaker-runtime", region_name="us-east-1")
+
 def is_valid_row(row):
     # Check if a row has all required scores
     required_fields = ['total_score', 'environment_score', 'social_score', 'governance_score', 'company_name']
@@ -126,6 +128,36 @@ def clear_pre_2020_data(table):
             )
     print(f"Deleted {len(items_to_delete)} items.")
 
+def handle_prediction(event):
+    try:
+        params = event.get("queryStringParameters") or {}
+        lag_1 = float(params.get("lag_1", 0))
+        lag_2 = float(params.get("lag_2", 0))
+        lag_3 = float(params.get("lag_3", 0))
+
+        input_csv = f"{lag_1},{lag_2},{lag_3}"
+
+        response = sagemaker.invoke_endpoint(
+            EndpointName="esg-xgboost-endpoint-v3",  # replace with your actual endpoint
+            ContentType="text/csv",
+            Body=input_csv
+        )
+
+        result = response["Body"].read().decode("utf-8").strip()
+
+        return {
+            "statusCode": 200,
+            "body": json.dumps({"prediction": result})
+        }
+
+    except Exception as e:
+        print("Prediction error:", e)
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": str(e)})
+        }
+
+
 def handler(event, context):
     try:
         # Initialize AWS clients
@@ -191,6 +223,11 @@ def handler(event, context):
         # If more data remains, re-trigger Lambda for the next batch
         if start + batch_size < total_rows:
             invoke_lambda_again(bucket, key)
+
+        route = event.get("rawPath", "")
+
+        if route == "/api/predict":
+            return handle_prediction(event)
 
         processed_count = len(df)
         return {
