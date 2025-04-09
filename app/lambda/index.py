@@ -138,7 +138,7 @@ def handle_prediction(event):
         input_csv = f"{lag_1},{lag_2},{lag_3}"
 
         response = sagemaker.invoke_endpoint(
-            EndpointName="esg-xgboost-endpoint-v3",  # replace with your actual endpoint
+            EndpointName="esg-xgboost-endpoint-v3",
             ContentType="text/csv",
             Body=input_csv
         )
