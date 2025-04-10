@@ -168,3 +168,19 @@ resource "aws_lambda_permission" "apigw_company_search" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.sierra_personal.execution_arn}/*/GET/api/search/company/*"
 } 
+
+resource "aws_iam_role_policy" "lambda_invoke_sagemaker" {
+  name = "sagemaker-invoke"
+  role = aws_iam_role.lambda_role.name
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect   = "Allow",
+        Action   = "sagemaker:InvokeEndpoint",
+        Resource = "arn:aws:sagemaker:us-east-1:797976479464:endpoint/esg-xgboost-endpoint-v3"
+      }
+    ]
+  })
+}
