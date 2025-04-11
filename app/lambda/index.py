@@ -147,6 +147,9 @@ def handle_prediction(event):
 
         return {
             "statusCode": 200,
+            "headers": {
+            "Content-Type": "application/json"
+            },
             "body": json.dumps({"prediction": result})
         }
 
@@ -160,8 +163,11 @@ def handle_prediction(event):
 
 def handler(event, context):
     try:
+        print("Full incoming event:")
+        print(json.dumps(event, indent=2))
 
-        route = event.get("rawPath", "")
+        #route = event.get("rawPath", "")
+        route = event.get("rawPath") or event.get("path") or event.get("requestContext", {}).get("resourcePath", "")
         print("rawPath:", route)
 
         # If it's an API Gateway request

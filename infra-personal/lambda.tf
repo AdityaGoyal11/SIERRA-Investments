@@ -19,6 +19,29 @@ resource "aws_lambda_function" "esg_etl" {
       SAGEMAKER_ENDPOINT = "esg-xgboost-endpoint-v3"
     }
   }
+
+}
+
+resource "aws_lambda_function" "predict_handler" {
+  function_name = "sierra-predict-handler"
+  runtime       = "python3.9"
+  handler       = "index.handler"
+  role          = aws_iam_role.lambda_role.arn
+  filename      = "../app/lambda/predict-lambda.zip"
+
+
+  source_code_hash = filebase64sha256("../app/lambda/predict-lambda.zip")
+
+  environment {
+    variables = {
+      SAGEMAKER_ENDPOINT = "esg-xgboost-endpoint-v3"
+    }
+  }
+
+  layers = [
+  "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python39:9"
+  ]
+
 }
 
 # API Handler Lambda for handling HTTP requests

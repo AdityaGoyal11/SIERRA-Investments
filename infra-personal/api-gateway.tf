@@ -556,7 +556,6 @@ resource "aws_api_gateway_resource" "predict" {
   path_part   = "predict"
 }
 
-# GET method for /predict
 resource "aws_api_gateway_method" "get_predict" {
   rest_api_id   = aws_api_gateway_rest_api.sierra_personal.id
   resource_id   = aws_api_gateway_resource.predict.id
@@ -564,25 +563,27 @@ resource "aws_api_gateway_method" "get_predict" {
   authorization = "NONE"
 }
 
-# Integration with Lambda
 resource "aws_api_gateway_integration" "lambda_integration_predict" {
   rest_api_id             = aws_api_gateway_rest_api.sierra_personal.id
   resource_id             = aws_api_gateway_resource.predict.id
   http_method             = aws_api_gateway_method.get_predict.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.api_handler.invoke_arn
+  uri                     = aws_lambda_function.predict_handler.invoke_arn
 }
 
-# Allow to invoke Lambda
 resource "aws_lambda_permission" "apigw_predict" {
   statement_id  = "AllowAPIGatewayInvokePredict"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.api_handler.function_name
+  function_name = aws_lambda_function.predict_handler.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.sierra_personal.execution_arn}/*/*"
 }
 
+# Add output for the predict endpoint
+output "api_url_predict" {
+  value = "${aws_api_gateway_stage.prod.invoke_url}/api/predict"
+}
 
 # Lambda permission for API Gateway - this is now moved to lambda.tf
 # Keeping this commented out as reference
