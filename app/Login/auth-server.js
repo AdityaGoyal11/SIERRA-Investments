@@ -24,11 +24,11 @@ app.get('/init', async (req, res) => {
 app.post('/register', async (req, res) => {
     try {
         const { email, password, name } = req.body;
-        
+
         if (!email || !password || !name) {
             return res.status(400).json({ message: 'Email, password, and name are required' });
         }
-        
+
         const result = await auth.registerUser(email, password, name);
         return res.status(201).json(result);
     } catch (error) {
@@ -44,11 +44,11 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        
+
         if (!email || !password) {
             return res.status(400).json({ message: 'Email and password are required' });
         }
-        
+
         const result = await auth.loginUser(email, password);
         return res.status(200).json(result);
     } catch (error) {
@@ -61,9 +61,7 @@ app.post('/login', async (req, res) => {
 });
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-    return res.json({ status: 'ok' });
-});
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 // Start the server
 if (require.main === module) {

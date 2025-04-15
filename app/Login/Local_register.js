@@ -6,12 +6,15 @@ const jwt = require('jsonwebtoken');
 // This doesnt really matter for local development since
 // We will be using the local DynamoDB instance
 // We will send this to lambda when we deploy anyways
+
+// forgot we already have env variables in docker compose setup
+// No need for fallback keys
 const dynamodb = new AWS.DynamoDB({
     region: 'us-east-1',
-    endpoint: process.env.DYNAMODB_ENDPOINT || 'http://localhost:8000',
+    endpoint: process.env.DYNAMODB_ENDPOINT,
     credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'local',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'local'
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
     }
 });
 
