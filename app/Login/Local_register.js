@@ -6,8 +6,8 @@ const jwt = require('jsonwebtoken');
 const dynamodb = new AWS.DynamoDB({
     region: 'localhost',
     endpoint: 'http://localhost:8000',
-    accessKeyId: 'NotUsed', 
-    secretAccessKey: 'NotUsed' 
+    accessKeyId: 'ASIATUER6CMOLEPA7GEN', 
+    secretAccessKey: 'fbf8IUwIQrEmdVgTMzzewbTO2A3rnj4IXB1/YvHP' 
 });
 
 const docClient = new AWS.DynamoDB.DocumentClient({ service: dynamodb });
@@ -81,4 +81,8 @@ async function createTables() {
         console.error('Error creating tables:', err);
         }
     }
+}
+
+module.exports = {
+    createTables
 }
