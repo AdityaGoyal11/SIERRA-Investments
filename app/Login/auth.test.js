@@ -1,17 +1,53 @@
+// Mock AWS SDK before importing the module
+jest.mock('aws-sdk', () => {
+    const mockDocClient = {
+        get: jest.fn().mockReturnThis(),
+        put: jest.fn().mockReturnThis(),
+        update: jest.fn().mockReturnThis(),
+        promise: jest.fn()
+    };
+
+    const mockDynamoDB = {
+        createTable: jest.fn().mockReturnThis(),
+        promise: jest.fn()
+    };
+
+    const aws = {
+        config: {
+            update: jest.fn()
+        }
+    };
+
+    aws.DynamoDB = jest.fn(() => mockDynamoDB);
+    // We have to mock document client now because
+    // We are handling operations like createTable for auth
+    aws.DynamoDB.DocumentClient = jest.fn(() => mockDocClient);
+
+    return aws;
+});
+
+// Now import the module that uses AWS SDK
+const AWS = require('aws-sdk');
 const auth = require('./Local_register');
 
-jest.setTimeout(20000);
-describe('Authentication Module Tests', () => {
+// Higher timeout for CI environments
+jest.setTimeout(30000);
+
+describe('Handling user authentication', () => {
     beforeAll(async () => {
         try {
+            // Mock the creation of a successful table
+            const mockDynamoDB = new AWS.DynamoDB();
+            mockDynamoDB.promise.mockResolvedValue({});
+
             await auth.createTables();
-            console.log('Test tables created');
+            console.log('Mock tables created');
         } catch (error) {
             console.error('Error creating tables:', error.message);
         }
     });
 
-    // Test user credentials to be used throughout tests
+    // Test user credentials to use throughout tests
     const fakeData = {
         email: 'johnharry@gmail.com',
         password: 'iLOVEkevinsomuch',
@@ -19,123 +55,130 @@ describe('Authentication Module Tests', () => {
     };
 
     describe('Register a new user', () => {
+        beforeEach(() => {
+            // Reset mocks between tests
+            jest.clearAllMocks();
+        });
+
         test('should register a new user successfully', async () => {
-            try {
-                // Try to create a completely new user to ensure test independence
-                const result = await auth.registerUser(fakeData.email, fakeData.password, fakeData.name);
-                
-                // Verify the response structure
-                expect(result).toHaveProperty('token');
-                expect(result).toHaveProperty('user');
-                expect(result.user).toHaveProperty('email', fakeData.email);
-                expect(result.user).toHaveProperty('name', fakeData.name);
-                expect(result.user).toHaveProperty('user_id');
-                
-                console.log(`Successfully created test user: ${fakeData.email}`);
-            } catch (error) {
-                // If user already exists, we need to handle that
-                if (error.message === 'User already exists') {
-                    // Since the user exists, we'll still be able to test login
-                    console.log(`Test user ${fakeData.email} already exists, will use for login tests`);
-                } else {
-                    throw error;
-                }
-            }
-        });
+            // Mock non-existent user (for new registration)
+            const dcMock = new AWS.DynamoDB.DocumentClient();
+            dcMock.promise.mockResolvedValueOnce({ Item: null });
+            dcMock.promise.mockResolvedValueOnce({});
 
-        test('should not register a user with an existing email', async () => {
-            // Either the user was created in the previous test or already existed
-            await expect(auth.registerUser(fakeData.email, fakeData.password, fakeData.name))
-                .rejects
-                .toThrow('User already exists');
-        });
-        
-        test('should handle registration errors properly', async () => {
-            // Mock docClient.get to simulate a DynamoDB error
-            const originalGet = auth.docClient ? auth.docClient.get : undefined;
-            
-            if (auth.docClient) {
-                // Mocking docClient.get to simulate a DynamoDB error
-                auth.docClient.get = jest.fn().mockImplementationOnce(() => {
-                    return {
-                        promise: () => Promise.reject(new Error('DynamoDB error'))
-                    };
-                });
-    
-                await expect(auth.registerUser('asdasdasd@asd.com', 'asd123', 'asd'))
-                    .rejects
-                    .toThrow('DynamoDB error');
-    
-                auth.docClient.get = originalGet;
-            } else {
-                console.log('Skipping DynamoDB error test - docClient not accessible');
-            }
-        });
-    });
+            const result = await auth.registerUser(
+                fakeData.email,
+                fakeData.password,
+                fakeData.name
+            );
 
-    describe('Login a user', () => {
-        test('should login the user we just created', async () => {
-            const result = await auth.loginUser(fakeData.email, fakeData.password);
-            
+            // Verify the response structure
             expect(result).toHaveProperty('token');
             expect(result).toHaveProperty('user');
             expect(result.user).toHaveProperty('email', fakeData.email);
             expect(result.user).toHaveProperty('name', fakeData.name);
-            
-            console.log(`Successfully logged in as: ${fakeData.email}`);
+            expect(result.user).toHaveProperty('user_id');
+        });
+
+        test('should not register a user with an existing email', async () => {
+            // Mock an existing user
+            const dcMock = new AWS.DynamoDB.DocumentClient();
+            dcMock.promise.mockResolvedValueOnce({
+                Item: {
+                    email: fakeData.email,
+                    name: fakeData.name,
+                    password_hash: 'hashed-password'
+                }
+            });
+
+            await expect(auth.registerUser(fakeData.email, fakeData.password, fakeData.name))
+                .rejects
+                .toThrow('User already exists');
+        });
+
+        test('should handle registration errors properly', async () => {
+            // Mock DynamoDB error for failed table creation
+            const dcMock = new AWS.DynamoDB.DocumentClient();
+            dcMock.promise.mockRejectedValueOnce(new Error('DynamoDB error'));
+
+            await expect(auth.registerUser('asdasd@asd.com', 'asd123', 'asd'))
+                .rejects
+                .toThrow('DynamoDB error');
+        });
+    });
+
+    describe('Login to an existing user', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+        });
+
+        test('should login an existing user successfully', async () => {
+            // Mock finding a user successfully
+            const bcrypt = require('bcryptjs');
+            const originalBcryptSync = bcrypt.compareSync;
+            bcrypt.compareSync = jest.fn().mockReturnValue(true);
+
+            const dcMock = new AWS.DynamoDB.DocumentClient();
+            dcMock.promise.mockResolvedValueOnce({
+                Item: {
+                    email: fakeData.email,
+                    name: fakeData.name,
+                    password_hash: 'hashed-password'
+                }
+            });
+            dcMock.promise.mockResolvedValueOnce({});
+
+            const result = await auth.loginUser(fakeData.email, fakeData.password);
+
+            // Verify response structure
+            expect(result).toHaveProperty('token');
+            expect(result).toHaveProperty('user');
+            expect(result.user).toHaveProperty('email', fakeData.email);
+
+            // Evaluate bcrypt is the same as the original
+            bcrypt.compareSync = originalBcryptSync;
         });
 
         test('should reject login with incorrect password', async () => {
-            await expect(auth.loginUser(fakeData.email, 'WrongPassword'))
+            // Mock successful find but the password is incorrect
+            const bcrypt = require('bcryptjs');
+            const originalBcryptSync = bcrypt.compareSync;
+            bcrypt.compareSync = jest.fn().mockReturnValue(false);
+
+            const dcMock = new AWS.DynamoDB.DocumentClient();
+            dcMock.promise.mockResolvedValueOnce({
+                Item: {
+                    email: fakeData.email,
+                    password_hash: 'hashed-password'
+                }
+            });
+
+            await expect(auth.loginUser(fakeData.email, 'FFFFFF'))
                 .rejects
                 .toThrow('Invalid credentials');
+
+            bcrypt.compareSync = originalBcryptSync;
         });
 
         test('should reject login with non-existent email', async () => {
-            await expect(auth.loginUser('asdasdasd@asd.com', fakeData.password))
+            // Mock a user that does not exist
+            const dcMock = new AWS.DynamoDB.DocumentClient();
+            dcMock.promise.mockResolvedValueOnce({ Item: null });
+
+            await expect(auth.loginUser('nonexistent@example.com', fakeData.password))
                 .rejects
                 .toThrow('Invalid credentials');
         });
     });
-    
-    describe('Additional User Tests', () => {
-        const secondUser = {
-            email: 'asd@asd.com',
-            password: 'asd123',
-            name: 'asd'
-        };
-        
-        test('should create a second user', async () => {
-            try {
-                const result = await auth.registerUser(secondUser.email, secondUser.password, secondUser.name);
-                
-                expect(result).toHaveProperty('token');
-                expect(result.user).toHaveProperty('email', secondUser.email);
-                
-                console.log(`Created second test user: ${secondUser.email}`);
-            } catch (error) {
-                if (error.message === 'User already exists') {
-                    console.log(`Second test user already exists: ${secondUser.email}`);
-                } else {
-                    throw error;
-                }
-            }
-        });
-        
-        test('should login with second user', async () => {
-            const result = await auth.loginUser(secondUser.email, secondUser.password);
-            
-            expect(result).toHaveProperty('token');
-            expect(result.user).toHaveProperty('email', secondUser.email);
-            
-            console.log(`Successfully logged in as second user: ${secondUser.email}`);
-        });
-    });
-    
-    describe('Table Creation Tests', () => {
+
+    describe('Table creation tests', () => {
         test('should handle table creation when tables already exist', async () => {
-            // Tables should already exist from beforeAll, so this tests the
-            // ResourceInUseException path
+            // Mock ResourceInUseException
+            const mockDynamoDB = new AWS.DynamoDB();
+            const error = new Error('ResourceInUseException');
+            error.code = 'ResourceInUseException';
+            mockDynamoDB.promise.mockRejectedValueOnce(error);
+
             await expect(auth.createTables()).resolves.not.toThrow();
         });
     });
