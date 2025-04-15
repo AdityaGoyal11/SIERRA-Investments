@@ -11,9 +11,11 @@ const config = {
     coverageReporters: ['text', 'lcov', 'clover', 'html'],
     collectCoverageFrom: [
         'express/src/**/*.js',
+        'Login/**/*.js',
         '!**/node_modules/**',
         '!**/vendor/**',
-        '!express/src/server.js'
+        '!express/src/server.js',
+        '!Login/auth-server.js'
     ]
 };
 

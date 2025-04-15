@@ -236,8 +236,28 @@ The test suite is configured to work with the local DynamoDB instance:
 The local environment comes sample ESG data for S&P 500 companies with ESG values from 2014-CURRENT.
 - Data is automatically seeded from local csv file
 
-## Next Steps
-- Add more test cases for edge cases
-- Complete code coverage
-- Setup auth endpoints (JWT)?
+### Auth Setup
+
+A separate authentication service is running on 3001.
+
+1. **Start Auth Service**:
+   ```
+   # Starts automatically with docker-compose up
+   # Or run separately with:
+   npm run auth-server
+   ```
+
+2. **Available Endpoints**:
+   - `GET /init` - Initialize auth tables
+   - `POST /register` - Register a new user (email, password, name)
+   - `POST /login` - Authenticate a user (email, password)
+
+3. **Testing Auth**:
+   ```
+   # Run auth tests
+   npm run test:auth
+   # Or you can manually run it using postman and put in the jsonBody as a request
+   ```
+
+The authentication system uses JWT tokens and stores user data in DynamoDB.
 
