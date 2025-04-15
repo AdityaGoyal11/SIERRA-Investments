@@ -18,7 +18,7 @@ const dynamodb = new AWS.DynamoDB({
 const docClient = new AWS.DynamoDB.DocumentClient({ service: dynamodb });
 
 // Configuration
-const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret'; // Use environment variable in production
+const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret';
 const TOKEN_EXPIRY = '24h';
 const TABLES = {
   USERS: 'sierra_users',
