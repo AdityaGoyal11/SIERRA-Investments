@@ -6,4 +6,13 @@ async function test() {
 
     db.createTables();
     console.log("tables Created");
+
+
+    try {
+        const regResult = await db.registerUser('iodjwd@test.com', 'password', 'Test');
+        console.log("Register success", regResult);
+    } 
+    catch (err) {
+        console.log("Failed", err.message);
+    }
 }

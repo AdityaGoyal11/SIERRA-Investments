@@ -83,6 +83,54 @@ async function createTables() {
     }
 }
 
+
+async function registerUser(email, password, name) {
+  try {
+    const existingUser = await docClient.get({
+      TableName: TABLES.USERS,
+      Key: { email }
+    }).promise();
+
+    if (existingUser.Item) {
+      throw new Error('User already exists');
+    }
+
+    // hashing
+    const salt = bcrypt.genSaltSync(10);
+    const passwordHash = bcrypt.hashSync(password, salt);
+
+    const userId = require('crypto').randomUUID();
+    const createdAt = new Date().toISOString();
+
+    await docClient.put({
+      TableName: TABLES.USERS,
+      Item: {
+        email,
+        user_id: userId,
+        password_hash: passwordHash,
+        name,
+        account_status: 'ACTIVE',
+        created_at: createdAt,
+        last_login: createdAt
+      }
+    }).promise();
+
+    const token = jwt.sign(
+      { email, user_id: userId, name },
+      JWT_SECRET,
+      { expiresIn: TOKEN_EXPIRY }
+    );
+
+    return { token, user: { email, name, user_id: userId } };
+  } catch (err) {
+    console.error('Registration error:', err);
+    throw err;
+  }
+}
+
+
+
 module.exports = {
-    createTables
+    createTables,
+    registerUser
 }
