@@ -19,3 +19,5 @@ async function test() {
         console.log("Failed", err.message);
     }
 }
+
+test();
