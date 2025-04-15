@@ -36,7 +36,7 @@ const esgDataRoutes = require('./routes/esg-data');
 const levelSearchRoutes = require('./routes/level-search');
 const scoreSearchRoutes = require('./routes/score-search');
 const esgRoutesV2 = require('./routes/esgV2');
-const authRoutes = require('./routes/auth');
+// Auth routes are now in a separate server
 
 // Mount routes
 app.use('/api/esg', esgRoutes);
@@ -45,7 +45,7 @@ app.use('/api', esgDataRoutes); // John's routes
 app.use('/api/search/level', levelSearchRoutes); // Kosar's routes
 app.use('/api/search/score', scoreSearchRoutes); // Annie's routes
 app.use('/api/v2/esg', esgRoutesV2);
-app.use('/api/auth', authRoutes); // Authentication routes
+// Auth routes mounted in separate server
 
 // Check if server online
 app.get('/health', (req, res) => {
