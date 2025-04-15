@@ -27,3 +27,22 @@ services:
     command: npm run dev
     depends_on:
       - dynamodb-local
+      
+  auth-api:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+      - DYNAMODB_ENDPOINT=http://dynamodb-local:8000
+      - AUTH_PORT=3001
+    volumes:
+      - ./app:/usr/src/app
+      - /usr/src/app/node_modules
+    command: node Login/auth-server.js
+    depends_on:
+      - dynamodb-local
