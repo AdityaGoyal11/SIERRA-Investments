@@ -29,3 +29,19 @@ resource "aws_lambda_permission" "allow_s3" {
   principal     = "s3.amazonaws.com"
   source_arn    = aws_s3_bucket.sierra.arn
 }
+
+
+resource "aws_lambda_function" "register_user" {
+  filename      = "../app/lambda/register_user.zip"
+  function_name = "register_user"
+  handler       = "index.handler"
+  runtime       = "nodejs14.x"
+  
+  environment {
+    variables = {
+      USERS_TABLE        = aws_dynamodb_table.sierra_users.name
+      JWT_SECRET         = "RandomtokenFN"
+      TOKEN_EXPIRY       = "24h"
+    }
+  }
+}
