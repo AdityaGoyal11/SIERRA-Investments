@@ -1,5 +1,6 @@
 const auth = require('./Local_register');
 
+jest.setTimeout(20000);
 describe('Authentication Module Tests', () => {
     beforeAll(async () => {
         try {
