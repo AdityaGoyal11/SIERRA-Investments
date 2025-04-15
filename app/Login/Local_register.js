@@ -2,18 +2,23 @@ const AWS = require('aws-sdk');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-
+// For local development setup
+// This doesnt really matter for local development since
+// We will be using the local DynamoDB instance
+// We will send this to lambda when we deploy anyways
 const dynamodb = new AWS.DynamoDB({
-    region: 'localhost',
-    endpoint: 'http://localhost:8000',
-    accessKeyId: 'ASIATUER6CMOLEPA7GEN', 
-    secretAccessKey: 'fbf8IUwIQrEmdVgTMzzewbTO2A3rnj4IXB1/YvHP' 
+    region: 'us-east-1',
+    endpoint: process.env.DYNAMODB_ENDPOINT || 'http://localhost:8000',
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'local',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'local'
+    }
 });
 
 const docClient = new AWS.DynamoDB.DocumentClient({ service: dynamodb });
 
 // Configuration
-const JWT_SECRET = 'APOISDUJSIDUQWDJW'; 
+const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret'; // Use environment variable in production
 const TOKEN_EXPIRY = '24h';
 const TABLES = {
   USERS: 'sierra_users',
