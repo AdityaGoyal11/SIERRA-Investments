@@ -9,8 +9,11 @@ async function test() {
 
 
     try {
-        const regResult = await db.registerUser('iodjwd@test.com', 'password', 'Test');
+        const regResult = await db.registerUser('user@test.com', 'password111', 'Test');
         console.log("Register success", regResult);
+
+        const logResult = await db.loginUser('user@test.com', 'password111');
+        console.log("Login Success:", logResult);
     } 
     catch (err) {
         console.log("Failed", err.message);

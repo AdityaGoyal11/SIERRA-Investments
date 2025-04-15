@@ -128,9 +128,45 @@ async function registerUser(email, password, name) {
   }
 }
 
+async function loginUser(email, password) {
+    try {
+      const result = await docClient.get({
+        TableName: TABLES.USERS,
+        Key: { email }
+      }).promise();
+  
+      const user = result.Item;
+      if (!user || !bcrypt.compareSync(password, user.password_hash)) {
+        throw new Error('Invalid credentials');
+      }
+  
+      await docClient.update({
+        TableName: TABLES.USERS,
+        Key: { email },
+        UpdateExpression: 'set last_login = :last_login',
+        ExpressionAttributeValues: {
+          ':last_login': new Date().toISOString()
+        }
+      }).promise();
+  
+      const token = jwt.sign(
+        { email, user_id: user.user_id, name: user.name },
+        JWT_SECRET,
+        { expiresIn: TOKEN_EXPIRY }
+      );
+  
+      return { token, user: { email, name: user.name, user_id: user.user_id } };
+    } catch (err) {
+      console.error('Login error:', err);
+      throw err;
+    }
+  }
+  
+
 
 
 module.exports = {
     createTables,
-    registerUser
+    registerUser,
+    loginUser
 }
