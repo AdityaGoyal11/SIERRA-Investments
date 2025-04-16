@@ -80,6 +80,32 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.post('/tickers', authenticateToken, async (req, res) => {
+    try {
+      const { ticker } = req.body;
+      
+      if (!ticker) {
+        return res.status(400).json({ message: 'Ticker is required' });
+      }
+  
+      const token = req.headers.authorization.split(' ')[1];
+      const result = await auth.saveTicker(token, ticker);
+      return res.status(200).json(result);
+      
+    } catch (error) {
+      console.error('Save ticker error:', error);
+      
+      if (error.message === 'Invalid token') {
+        return res.status(401).json({ message: error.message });
+      }
+      
+      return res.status(500).json({ 
+        message: 'Error saving ticker', 
+        error: error.message 
+      });
+    }
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
