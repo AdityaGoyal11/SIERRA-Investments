@@ -16,3 +16,10 @@ provider "aws" {
 resource "aws_s3_bucket" "sierra_personal" {
   bucket = "sierra-personal-bucket-2025"
 } 
+
+data "aws_sagemaker_prebuilt_ecr_image" "xgboost_image" {
+  repository_name = "sagemaker-xgboost"
+  image_tag       = "1.7-1"  # or 1.5-1, 1.3-1
+  region          = "us-east-1"
+}
+

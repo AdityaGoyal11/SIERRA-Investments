@@ -6,6 +6,8 @@ from datetime import datetime
 import pytz
 from dateutil import parser
 
+sagemaker = boto3.client("sagemaker-runtime", region_name="us-east-1")
+
 def is_valid_row(row):
     # Check if a row has all required scores
     required_fields = ['total_score', 'environment_score', 'social_score', 'governance_score', 'company_name']
@@ -126,77 +128,128 @@ def clear_pre_2020_data(table):
             )
     print(f"Deleted {len(items_to_delete)} items.")
 
+def handle_prediction(event):
+    try:
+        params = event.get("queryStringParameters") or {}
+        lag_1 = float(params.get("lag_1", 0))
+        lag_2 = float(params.get("lag_2", 0))
+        lag_3 = float(params.get("lag_3", 0))
+
+        input_csv = f"{lag_1},{lag_2},{lag_3}"
+
+        response = sagemaker.invoke_endpoint(
+            EndpointName="esg-xgboost-endpoint-v3",
+            ContentType="text/csv",
+            Body=input_csv
+        )
+
+        result = response["Body"].read().decode("utf-8").strip()
+
+        return {
+            "statusCode": 200,
+            "headers": {
+            "Content-Type": "application/json"
+            },
+            "body": json.dumps({"prediction": result})
+        }
+
+    except Exception as e:
+        print("Prediction error:", e)
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": str(e)})
+        }
+
+
 def handler(event, context):
     try:
-        # Initialize AWS clients
-        s3 = boto3.client('s3')
-        dynamodb = boto3.resource('dynamodb')
-        table = dynamodb.Table('esg_processed')
+        print("Full incoming event:")
+        print(json.dumps(event, indent=2))
 
-        # Get bucket and key from the S3 event
-        bucket = event['Records'][0]['s3']['bucket']['name']
-        key = event['Records'][0]['s3']['object']['key']
-        
-        # Get the CSV file from S3
-        response = s3.get_object(Bucket=bucket, Key=key)
-        csv_content = response['Body'].read().decode('utf-8')
-        df = pd.read_csv(io.StringIO(csv_content))
-        
-        # Filter out rows with missing scores and pre-2020 data
-        df = df[df.apply(is_valid_row, axis=1)]
-        df['timestamp'] = df['timestamp'].apply(format_timestamp)
-        df = df[df['timestamp'] >= "2020-01-01"]
-        
-        # Get current timestamp for processing date if not in CSV
-        current_time = datetime.now(pytz.UTC).isoformat()
+        #route = event.get("rawPath", "")
+        route = event.get("rawPath") or event.get("path") or event.get("requestContext", {}).get("resourcePath", "")
+        print("rawPath:", route)
 
-        # Process data in batches
-        batch_size = 500  # Limit to 500 items per Lambda execution
-        total_rows = len(df)
-        print(f"Processing {total_rows} rows...")
-        
-        for start in range(0, total_rows, batch_size):
-            batch_df = df.iloc[start:start + batch_size]
-            # Process each row and write to DynamoDB
-            with table.batch_writer() as batch:
-                for _, row in batch_df.iterrows():
-                    try:
-                        # Process and format the data
+        # If it's an API Gateway request
+        if "/api/predict" in route:
+            return handle_prediction(event)
+        elif "Records" in event:
+            # Initialize AWS clients
+            s3 = boto3.client('s3')
+            dynamodb = boto3.resource('dynamodb')
+            table = dynamodb.Table('esg_processed')
 
-                        # zero if missing
-                        total_score = float(row.get('total_score', 0)) 
+            # Get bucket and key from the S3 event
+            bucket = event['Records'][0]['s3']['bucket']['name']
+            key = event['Records'][0]['s3']['object']['key']
+        
+            # Get the CSV file from S3
+            response = s3.get_object(Bucket=bucket, Key=key)
+            csv_content = response['Body'].read().decode('utf-8')
+            df = pd.read_csv(io.StringIO(csv_content))
+        
+            # Filter out rows with missing scores and pre-2020 data
+            df = df[df.apply(is_valid_row, axis=1)]
+            df['timestamp'] = df['timestamp'].apply(format_timestamp)
+            df = df[df['timestamp'] >= "2020-01-01"]
+        
+            # Get current timestamp for processing date if not in CSV
+            current_time = datetime.now(pytz.UTC).isoformat()
+
+            # Process data in batches
+            batch_size = 500  # Limit to 500 items per Lambda execution
+            total_rows = len(df)
+            print(f"Processing {total_rows} rows...")
+        
+            for start in range(0, total_rows, batch_size):
+                batch_df = df.iloc[start:start + batch_size]
+                # Process each row and write to DynamoDB
+                with table.batch_writer() as batch:
+                    for _, row in batch_df.iterrows():
+                        try:
+                            # Process and format the data
+
+                            # zero if missing
+                            total_score = float(row.get('total_score', 0)) 
                     
-                        item = {
-                            'ticker': str(row['ticker']).lower(),
-                            'timestamp': format_timestamp(row['timestamp']),
-                            'last_processed_date': str(row.get('last_processing_date', current_time)),
-                            'total_score': int(total_score),
-                            'environmental_score': int(float(row['environment_score'])),
-                            'social_score': int(float(row['social_score'])),
-                            'governance_score': int(float(row['governance_score'])),
-                            'rating': rating(total_score),
-                            'company_name': str(row['company_name'])
-                        }
+                            item = {
+                                'ticker': str(row['ticker']).lower(),
+                                'timestamp': format_timestamp(row['timestamp']),
+                                'last_processed_date': str(row.get('last_processing_date', current_time)),
+                                'total_score': int(total_score),
+                                'environmental_score': int(float(row['environment_score'])),
+                                'social_score': int(float(row['social_score'])),
+                                'governance_score': int(float(row['governance_score'])),
+                                'rating': rating(total_score),
+                                'company_name': str(row['company_name'])
+                            }
                     
-                        # Write to DynamoDB using batch writer
-                        batch.put_item(Item=item)
-                        print(f"Processed and stored data for ticker: {item['ticker']}, timestamp: {item['timestamp']}")
-                    except (KeyError, ValueError) as e:
-                        print(f"Error processing row: {row}")
-                        print(f"Error details: {str(e)}")
-                        continue
+                            # Write to DynamoDB using batch writer
+                            batch.put_item(Item=item)
+                            print(f"Processed and stored data for ticker: {item['ticker']}, timestamp: {item['timestamp']}")
+                        except (KeyError, ValueError) as e:
+                            print(f"Error processing row: {row}")
+                            print(f"Error details: {str(e)}")
+                            continue
 
             print(f"Processed and stored {len(batch_df)} rows.")
 
-        # If more data remains, re-trigger Lambda for the next batch
-        if start + batch_size < total_rows:
-            invoke_lambda_again(bucket, key)
+            # If more data remains, re-trigger Lambda for the next batch
+            if start + batch_size < total_rows:
+                invoke_lambda_again(bucket, key)
 
-        processed_count = len(df)
-        return {
-            'statusCode': 200,
-            'body': json.dumps(f'Successfully processed {processed_count} valid rows and stored in DynamoDB')
-        }
+            #route = event.get("rawPath", "")
+
+            processed_count = len(df)
+            return {
+                'statusCode': 200,
+                'body': json.dumps(f'Successfully processed {processed_count} valid rows and stored in DynamoDB')
+            }
+        else:
+            return{
+                'statusCode': 404,
+                'body': json.dumps(f'error: Unknown route:{route}')
+            }
         
     except Exception as e:
         print(f"Error: {str(e)}")

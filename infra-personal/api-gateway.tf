@@ -517,6 +517,11 @@ resource "aws_api_gateway_integration_response" "options_company_name" {
 # Deployment
 resource "aws_api_gateway_deployment" "sierra_personal" {
   rest_api_id = aws_api_gateway_rest_api.sierra_personal.id
+
+  triggers = {
+    redeployment = timestamp()
+  }
+  
   depends_on = [
     aws_api_gateway_integration.lambda_ticker,
     aws_api_gateway_integration.lambda_all,
@@ -525,6 +530,7 @@ resource "aws_api_gateway_deployment" "sierra_personal" {
     aws_api_gateway_integration.lambda_integration_lesser_score,
     aws_api_gateway_integration.lambda_integration_score_range,
     aws_api_gateway_integration.lambda_integration_company_name,
+    aws_api_gateway_integration.lambda_integration_predict,
     aws_api_gateway_integration.options_ticker,
     aws_api_gateway_integration.options_all,
     aws_api_gateway_integration.options_level_rating,
@@ -541,6 +547,42 @@ resource "aws_api_gateway_stage" "prod" {
   deployment_id = aws_api_gateway_deployment.sierra_personal.id
   rest_api_id  = aws_api_gateway_rest_api.sierra_personal.id
   stage_name   = "prod"
+}
+
+# /predict
+resource "aws_api_gateway_resource" "predict" {
+  rest_api_id = aws_api_gateway_rest_api.sierra_personal.id
+  parent_id   = aws_api_gateway_resource.api.id
+  path_part   = "predict"
+}
+
+resource "aws_api_gateway_method" "get_predict" {
+  rest_api_id   = aws_api_gateway_rest_api.sierra_personal.id
+  resource_id   = aws_api_gateway_resource.predict.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "lambda_integration_predict" {
+  rest_api_id             = aws_api_gateway_rest_api.sierra_personal.id
+  resource_id             = aws_api_gateway_resource.predict.id
+  http_method             = aws_api_gateway_method.get_predict.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.predict_handler.invoke_arn
+}
+
+resource "aws_lambda_permission" "apigw_predict" {
+  statement_id  = "AllowAPIGatewayInvokePredict"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.predict_handler.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.sierra_personal.execution_arn}/*/*"
+}
+
+# Add output for the predict endpoint
+output "api_url_predict" {
+  value = "${aws_api_gateway_stage.prod.invoke_url}/api/predict"
 }
 
 # Lambda permission for API Gateway - this is now moved to lambda.tf
