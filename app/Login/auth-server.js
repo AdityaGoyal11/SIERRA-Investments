@@ -6,8 +6,28 @@ const app = express();
 // This is just for local development since theres
 // A bunch of overlapping errors from ESG dynamodb and auth dynamodb
 const PORT = process.env.AUTH_PORT || 3001;
+const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret';
 
 app.use(express.json());
+
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    
+    if (!token) {
+      return res.status(401).json({ message: 'Authorization token required' });
+    }
+  
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err) {
+        console.error('JWT verification error:', err);
+        return res.status(403).json({ message: 'Invalid or expired token' });
+      }
+      req.user = user;
+      next();
+    });
+};
+
 
 // Initialize auth tables route
 app.get('/init', async (req, res) => {
