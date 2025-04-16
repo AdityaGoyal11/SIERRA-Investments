@@ -60,8 +60,21 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// Endpoint to add tickers to a user
+app.post('/user/ticker', async (req, res) => {
+    try {
+        const { userId, ticker } = req.body;
+        if (!userId, !ticker) {
+            return res.status(400).json({ message: 'userId or ticker is missing' });
+        }
+
+        const result = await auth.addTickerToUser(userId, ticker);
+        return res.status(201).json(result);
+    }
+});
+
 // Health check endpoint
-app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/health', (req, res) => res.json({ status: 'ok to use auth' }));
 
 // Start the server
 if (require.main === module) {

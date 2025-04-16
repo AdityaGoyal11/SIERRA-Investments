@@ -169,8 +169,28 @@ async function loginUser(email, password) {
     }
 }
 
+async function addTickerToUser(userId, ticker) {
+    try {
+        const result = await docClient.put({
+            TableName: TABLES.TICKERS,
+            Item: {
+                userId: userId,
+                ticker: ticker.toLowerCase(),
+                timeOfCreation: new Date().toISOString
+            }
+        }).promise();
+
+        console.log(' New ticker saved successfully ');
+        return { success: true };
+    } catch (err) {
+        console.error('Add ticker error:', err);
+        throw err;
+    }
+}
+
 module.exports = {
     createTables,
     registerUser,
-    loginUser
+    loginUser,
+    addTickerToUser
 };
