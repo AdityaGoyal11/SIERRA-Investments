@@ -6,8 +6,28 @@ const app = express();
 // This is just for local development since theres
 // A bunch of overlapping errors from ESG dynamodb and auth dynamodb
 const PORT = process.env.AUTH_PORT || 3001;
+const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret';
 
 app.use(express.json());
+
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    
+    if (!token) {
+      return res.status(401).json({ message: 'Authorization token required' });
+    }
+  
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err) {
+        console.error('JWT verification error:', err);
+        return res.status(403).json({ message: 'Invalid or expired token' });
+      }
+      req.user = user;
+      next();
+    });
+};
+
 
 // Initialize auth tables route
 app.get('/init', async (req, res) => {
@@ -57,6 +77,32 @@ app.post('/login', async (req, res) => {
             return res.status(401).json({ message: error.message });
         }
         return res.status(500).json({ message: 'Error logging in', error: error.message });
+    }
+});
+
+app.post('/tickers', authenticateToken, async (req, res) => {
+    try {
+      const { ticker } = req.body;
+      
+      if (!ticker) {
+        return res.status(400).json({ message: 'Ticker is required' });
+      }
+  
+      const token = req.headers.authorization.split(' ')[1];
+      const result = await auth.saveTicker(token, ticker);
+      return res.status(200).json(result);
+      
+    } catch (error) {
+      console.error('Save ticker error:', error);
+      
+      if (error.message === 'Invalid token') {
+        return res.status(401).json({ message: error.message });
+      }
+      
+      return res.status(500).json({ 
+        message: 'Error saving ticker', 
+        error: error.message 
+      });
     }
 });
 

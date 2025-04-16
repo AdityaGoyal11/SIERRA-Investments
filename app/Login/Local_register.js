@@ -25,7 +25,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret';
 const TOKEN_EXPIRY = '24h';
 const TABLES = {
     USERS: 'sierra_users',
-    TICKERS: 'sierra_saved_tickers' // not yet implemented
+    TICKERS: 'sierra_saved_tickers' 
 };
 
 async function createTables() {
@@ -169,8 +169,33 @@ async function loginUser(email, password) {
     }
 }
 
+
+async function saveTicker(token, ticker) {
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      
+      const createdAt = new Date().toISOString();
+      
+      await docClient.put({
+        TableName: TABLES.TICKERS,
+        Item: {
+          user_id: decoded.user_id,
+          ticker,
+          created_at: createdAt
+        }
+      }).promise();
+  
+      return { message: 'Ticker saved successfully', ticker, timestamp: createdAt };
+    } catch (err) {
+      console.error('Save ticker error:', err);
+      throw err;
+    }
+}
+
+
 module.exports = {
     createTables,
     registerUser,
-    loginUser
+    loginUser,
+    saveTicker
 };
