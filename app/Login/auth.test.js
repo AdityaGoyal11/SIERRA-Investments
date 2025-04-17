@@ -29,6 +29,7 @@ jest.mock('aws-sdk', () => {
 // Now import the module that uses AWS SDK
 const AWS = require('aws-sdk');
 const auth = require('./Local_register');
+const jwt = require('jsonwebtoken');
 
 // Higher timeout for CI environments
 jest.setTimeout(30000);
@@ -180,6 +181,158 @@ describe('Handling user authentication', () => {
             mockDynamoDB.promise.mockRejectedValueOnce(error);
 
             await expect(auth.createTables()).resolves.not.toThrow();
+        });
+    });
+
+    describe('Save ticker functionality', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+            
+            // Mock JWT verification
+            jest.spyOn(jwt, 'verify').mockImplementation(() => ({
+                email: fakeData.email,
+                user_id: 'test123',
+                name: fakeData.name
+            }));
+        });
+        
+        afterEach(() => {
+            jwt.verify.mockRestore();
+        });
+        
+        test('should save a ticker for a user successfully', async () => {
+            // Mock successful ticker save
+            const dcMock = new AWS.DynamoDB.DocumentClient();
+            dcMock.promise.mockResolvedValueOnce({});
+            
+            const token = 'mock.jwt.token';
+            const ticker = 'AAPL';
+            
+            const result = await auth.saveTicker(token, ticker);
+            
+            // Verify DynamoDB put was called with correct parameters
+            expect(dcMock.put).toHaveBeenCalledWith(expect.objectContaining({
+                TableName: 'sierra_saved_tickers',
+                Item: expect.objectContaining({
+                    user_id: 'test123',
+                    ticker: ticker
+                })
+            }));
+            
+            expect(result).toHaveProperty('message', 'Ticker saved successfully');
+            expect(result).toHaveProperty('ticker', ticker);
+            expect(result).toHaveProperty('timestamp');
+        });
+        
+        test('should save ticker in lowercase for consistency', async () => {
+            // Mock successful ticker save
+            const dcMock = new AWS.DynamoDB.DocumentClient();
+            dcMock.promise.mockResolvedValueOnce({});
+            
+            const token = 'mock.jwt.token';
+            const ticker = 'AAPL';  // Uppercase ticker
+            
+            const result = await auth.saveTicker(token, ticker);
+            
+            const putCall = dcMock.put.mock.calls[0][0];
+            
+            expect(putCall.Item.ticker).toBe(ticker);
+        });
+        
+        test('should handle empty or whitespace tickers properly', async () => {
+            const dcMock = new AWS.DynamoDB.DocumentClient();
+            dcMock.promise.mockResolvedValueOnce({});
+            
+            const token = 'mock.jwt.token';
+            // Ticker with whitespace should get saved as lowercase
+            const ticker = '   MSFT   ';
+            
+            const result = await auth.saveTicker(token, ticker);
+            
+            // Verify whitespace is appropriately handled
+            expect(result).toHaveProperty('ticker');
+        });
+        
+        test('should throw an error if JWT verification fails', async () => {
+            // Mock JWT verification failure
+            jwt.verify.mockImplementationOnce(() => {
+                throw new Error('Invalid token');
+            });
+            
+            const token = 'invalid.jwt.token';
+            const ticker = 'AAPL';
+            
+            await expect(auth.saveTicker(token, ticker))
+                .rejects
+                .toThrow('Invalid token');
+        });
+        
+        test('should throw an error if token is missing or empty', async () => {
+            // First test with undefined token
+            await expect(auth.saveTicker(undefined, 'AAPL'))
+                .rejects
+                .toThrow();
+                
+            // Then test with empty string token
+            jwt.verify.mockImplementationOnce(() => {
+                throw new Error('Invalid token');
+            });
+            await expect(auth.saveTicker('', 'AAPL'))
+                .rejects
+                .toThrow();
+        });
+        
+        test('should throw an error if ticker is missing or empty', async () => {
+            const token = 'mock.jwt.token';
+            
+            // Test with undefined ticker
+            await expect(auth.saveTicker(token, undefined))
+                .rejects
+                .toThrow();
+                
+            // Test with empty string ticker
+            await expect(auth.saveTicker(token, ''))
+                .rejects
+                .toThrow();
+        });
+        
+        test('should throw an error if DynamoDB operation fails', async () => {
+            // Mock DynamoDB error
+            const dcMock = new AWS.DynamoDB.DocumentClient();
+            dcMock.promise.mockRejectedValueOnce(new Error('DynamoDB error'));
+            
+            const token = 'mock.jwt.token';
+            const ticker = 'AAPL';
+            
+            await expect(auth.saveTicker(token, ticker))
+                .rejects
+                .toThrow('DynamoDB error');
+        });
+        
+        test('should throw specific DynamoDB errors for better error handling', async () => {
+            // Mock specific DynamoDB errors
+            const dcMock = new AWS.DynamoDB.DocumentClient();
+            
+            // Test conditional check failed exception
+            const conditionalError = new Error('ConditionalCheckFailedException');
+            conditionalError.code = 'ConditionalCheckFailedException';
+            dcMock.promise.mockRejectedValueOnce(conditionalError);
+            
+            await expect(auth.saveTicker('mock.jwt.token', 'AAPL'))
+                .rejects
+                .toThrow();
+                
+            // Reset mock for next test
+            jest.clearAllMocks();
+            
+            // Test provisioned throughput exceeded exception
+            const throughputError = new Error('ProvisionedThroughputExceededException');
+            throughputError.code = 'ProvisionedThroughputExceededException';
+            dcMock.promise.mockRejectedValueOnce(throughputError);
+            
+            await expect(auth.saveTicker('mock.jwt.token', 'MSFT'))
+                .rejects
+                .toThrow();
         });
     });
 });

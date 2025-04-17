@@ -169,9 +169,17 @@ async function loginUser(email, password) {
     }
 }
 
-
 async function saveTicker(token, ticker) {
+    // Added error handling for missing token and ticker symbol
     try {
+      if (!token) {
+        throw new Error('Missing token');
+      }
+      
+      if (!ticker) {
+        throw new Error('Missing ticker symbol');
+      }
+      
       const decoded = jwt.verify(token, JWT_SECRET);
       
       const createdAt = new Date().toISOString();

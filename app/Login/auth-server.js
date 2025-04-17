@@ -1,5 +1,6 @@
 const express = require('express');
 const auth = require('./Local_register');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 // Use a different port than main app

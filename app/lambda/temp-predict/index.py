@@ -128,38 +128,6 @@ def clear_pre_2020_data(table):
             )
     print(f"Deleted {len(items_to_delete)} items.")
 
-# def handle_prediction(event):
-#     try:
-#         params = event.get("queryStringParameters") or {}
-#         lag_1 = float(params.get("lag_1", 0))
-#         lag_2 = float(params.get("lag_2", 0))
-#         lag_3 = float(params.get("lag_3", 0))
-#
-#         input_csv = f"{lag_1},{lag_2},{lag_3}"
-#
-#        response = sagemaker.invoke_endpoint(
-#            EndpointName="esg-xgboost-endpoint-v3",
-#            ContentType="text/csv",
-#            Body=input_csv
-#        )
-
-#        result = response["Body"].read().decode("utf-8").strip()
-
-#        return {
-#            "statusCode": 200,
-#            "headers": {
-#            "Content-Type": "application/json"
-#            },
-#            "body": json.dumps({"prediction": result})
-#        }
-
-#     except Exception as e:
-#         print("Prediction error:", e)
-#         return {
-#             "statusCode": 500,
-#             "body": json.dumps({"error": str(e)})
-#         }
-
 def handle_prediction(event):
     try:
         return {
@@ -188,7 +156,6 @@ def handle_prediction(event):
             },
             "body": json.dumps({"error": str(e)})
         }
-
 
 def handler(event, context):
     try:

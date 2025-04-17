@@ -535,7 +535,16 @@ resource "aws_api_gateway_deployment" "sierra_personal" {
     aws_api_gateway_integration.options_all,
     aws_api_gateway_integration.options_level_rating,
     aws_api_gateway_integration.options_score_range,
-    aws_api_gateway_integration.options_company_name
+    aws_api_gateway_integration.options_company_name,
+    # Endpoints integration for new auth routes
+    aws_api_gateway_integration.lambda_register,
+    aws_api_gateway_integration.lambda_login,
+    aws_api_gateway_integration.lambda_init,
+    aws_api_gateway_integration.lambda_tickers,
+    aws_api_gateway_integration.lambda_health,
+    aws_api_gateway_integration.options_register,
+    aws_api_gateway_integration.options_login,
+    aws_api_gateway_integration.options_tickers
   ]
 
   lifecycle {
