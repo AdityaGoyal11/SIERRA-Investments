@@ -1,6 +1,8 @@
 const express = require('express');
 const auth = require('./Local_register');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const cors = require('cors');
 
 const app = express();
 // Use a different port than main app
@@ -81,29 +83,63 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.post('/tickers', authenticateToken, async (req, res) => {
+// Add route for saving tickers
+app.post('/tickers', async (req, res) => {
     try {
-      const { ticker } = req.body;
-      
-      if (!ticker) {
-        return res.status(400).json({ message: 'Ticker is required' });
-      }
-  
-      const token = req.headers.authorization.split(' ')[1];
-      const result = await auth.saveTicker(token, ticker);
-      return res.status(200).json(result);
-      
+        // Get token from Authorization header
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ message: 'Authorization token required' });
+        }
+        
+        const token = authHeader.split(' ')[1];
+        const { ticker } = req.body;
+        
+        if (!ticker) {
+            return res.status(400).json({ message: 'Ticker is required' });
+        }
+        
+        const result = await auth.saveTicker(token, ticker);
+        return res.status(200).json(result);
+        
     } catch (error) {
-      console.error('Save ticker error:', error);
-      
-      if (error.message === 'Invalid token') {
-        return res.status(401).json({ message: error.message });
-      }
-      
-      return res.status(500).json({ 
-        message: 'Error saving ticker', 
-        error: error.message 
-      });
+        console.error('Save ticker error:', error);
+        
+        if (error.message === 'Invalid token') {
+          return res.status(401).json({ message: error.message });
+        }
+        
+        return res.status(500).json({ 
+          message: 'Error saving ticker', 
+          error: error.message 
+        });
+    }
+});
+
+// Add route for retrieving tickers
+app.get('/tickers', async (req, res) => {
+    try {
+        // Get token from Authorization header
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ message: 'Authorization token required' });
+        }
+        
+        const token = authHeader.split(' ')[1];
+        
+        const result = await auth.retrieveTickers(token);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error('Retrieve tickers error:', error);
+        
+        if (error.message === 'Invalid token') {
+            return res.status(401).json({ message: error.message });
+        }
+        
+        return res.status(500).json({
+            message: 'Error retrieving tickers',
+            error: error.message
+        });
     }
 });
 

@@ -169,39 +169,6 @@ async function loginUser(email, password) {
     }
 }
 
-<<<<<<< HEAD
-async function saveTicker(token, ticker) {
-    // Added error handling for missing token and ticker symbol
-    try {
-      if (!token) {
-        throw new Error('Missing token');
-      }
-      
-      if (!ticker) {
-        throw new Error('Missing ticker symbol');
-      }
-      
-      const decoded = jwt.verify(token, JWT_SECRET);
-      
-      const createdAt = new Date().toISOString();
-      
-      await docClient.put({
-        TableName: TABLES.TICKERS,
-        Item: {
-          user_id: decoded.user_id,
-          ticker,
-          created_at: createdAt
-        }
-      }).promise();
-  
-      return { message: 'Ticker saved successfully', ticker, timestamp: createdAt };
-    } catch (err) {
-      console.error('Save ticker error:', err);
-      throw err;
-    }
-}
-
-=======
 async function questionnaireAnswer(token, questionId, answerId) {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
@@ -294,16 +261,114 @@ async function questionnaireComplete(token) {
         throw err;
     }
 }
->>>>>>> eef692f446dd1cc843d83bd1cdbe358ed3cfe044
+
+function getAuthToken(headers) {
+    if (!headers) {
+        return null;
+    }
+    
+    // Try all possible header names
+    let authHeader = null;
+    if (headers.Authorization) {
+        authHeader = headers.Authorization;
+    } else if (headers.authorization) {
+        authHeader = headers.authorization;
+    } else if (headers.auth) {
+        authHeader = headers.auth;
+    } else if (headers['x-authorization']) {
+        authHeader = headers['x-authorization'];
+    }
+    
+    if (!authHeader) {
+        return null;
+    }
+    
+    // Try both "Bearer token" format and just "token" format
+    const parts = authHeader.split(' ');
+    if (parts.length === 2 && parts[0] === 'Bearer') {
+        return parts[1];
+    }
+    
+    // If it's just the token by itself
+    return authHeader;
+}
+
+async function saveTicker(token, ticker) {
+    // Added error handling for missing token and ticker symbol
+    try {
+      if (!token) {
+        throw new Error('Missing token');
+      }
+      
+      if (!ticker) {
+        throw new Error('Missing ticker symbol');
+      }
+      
+      const decoded = jwt.verify(token, JWT_SECRET);
+      
+      const createdAt = new Date().toISOString();
+      
+      await docClient.put({
+        TableName: TABLES.TICKERS,
+        Item: {
+          user_id: decoded.user_id,
+          ticker,
+          created_at: createdAt
+        }
+      }).promise();
+  
+      return { message: 'Ticker saved successfully', ticker, timestamp: createdAt };
+    } catch (err) {
+      console.error('Save ticker error:', err);
+      throw err;
+    }
+}
+
+async function retrieveTickers(token) {
+    try {
+        if (!token) {
+            throw new Error('Missing token');
+        }
+        
+        const decoded = jwt.verify(token, JWT_SECRET);
+        
+        const params = {
+            TableName: TABLES.TICKERS,
+            KeyConditionExpression: 'user_id = :userId',
+            ExpressionAttributeValues: {
+                ':userId': decoded.user_id
+            }
+        };
+        
+        const result = await docClient.query(params).promise();
+        
+        if (!result.Items || result.Items.length === 0) {
+            return { message: 'No saved tickers found', tickers: [] };
+        }
+        
+        // Format the response
+        const tickers = result.Items.map(item => ({
+            ticker: item.ticker,
+            created_at: item.created_at
+        }));
+        
+        return { 
+            message: 'Tickers retrieved successfully', 
+            count: tickers.length,
+            tickers: tickers 
+        };
+    } catch (err) {
+        console.error('Retrieve tickers error:', err);
+        throw err;
+    }
+}
 
 module.exports = {
     createTables,
     registerUser,
     loginUser,
-<<<<<<< HEAD
-    saveTicker
-=======
     questionnaireAnswer,
-    questionnaireComplete
->>>>>>> eef692f446dd1cc843d83bd1cdbe358ed3cfe044
+    questionnaireComplete,
+    saveTicker,
+    retrieveTickers
 };
