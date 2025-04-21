@@ -80,42 +80,50 @@ app.post('/login', async (req, res) => {
     }
 });
 
-<<<<<<< HEAD
-// Endpoint to add tickers to a user
-app.post('/user/ticker', async (req, res) => {
-    try {
-        const { userId, ticker } = req.body;
-        if (!userId, !ticker) {
-            return res.status(400).json({ message: 'userId or ticker is missing' });
-        }
-
-        const result = await auth.addTickerToUser(userId, ticker);
-        return res.status(201).json(result);
-=======
+// Route for saving tickers
 app.post('/tickers', authenticateToken, async (req, res) => {
     try {
-      const { ticker } = req.body;
-      
-      if (!ticker) {
-        return res.status(400).json({ message: 'Ticker is required' });
-      }
-  
-      const token = req.headers.authorization.split(' ')[1];
-      const result = await auth.saveTicker(token, ticker);
-      return res.status(200).json(result);
-      
+        const { ticker } = req.body;
+        
+        if (!ticker) {
+          return res.status(400).json({ message: 'Ticker is required' });
+        }
+        
+        const token = req.headers.authorization.split(' ')[1];
+        const result = await auth.saveTicker(token, ticker);
+        return res.status(200).json(result);
+        
     } catch (error) {
-      console.error('Save ticker error:', error);
-      
-      if (error.message === 'Invalid token') {
-        return res.status(401).json({ message: error.message });
-      }
-      
-      return res.status(500).json({ 
-        message: 'Error saving ticker', 
-        error: error.message 
-      });
->>>>>>> 35cbbc0f5f356e0fb5badf1e765d3e8de731fd7f
+        console.error('Save ticker error:', error);
+        
+        if (error.message === 'Invalid token') {
+          return res.status(401).json({ message: error.message });
+        }
+        
+        return res.status(500).json({ 
+          message: 'Error saving ticker', 
+          error: error.message 
+        });
+    }
+});
+
+// Route for retrieving tickers
+app.get('/tickers', authenticateToken, async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        const result = await auth.retrieveTickers(token);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error('Retrieve tickers error:', error);
+        
+        if (error.message === 'Invalid token') {
+            return res.status(401).json({ message: error.message });
+        }
+        
+        return res.status(500).json({
+            message: 'Error retrieving tickers',
+            error: error.message
+        });
     }
 });
 

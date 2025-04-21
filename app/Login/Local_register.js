@@ -169,30 +169,17 @@ async function loginUser(email, password) {
     }
 }
 
-<<<<<<< HEAD
-async function addTickerToUser(userId, ticker) {
-    try {
-        const result = await docClient.put({
-            TableName: TABLES.TICKERS,
-            Item: {
-                userId: userId,
-                ticker: ticker.toLowerCase(),
-                timeOfCreation: new Date().toISOString
-            }
-        }).promise();
-
-        console.log(' New ticker saved successfully ');
-        return { success: true };
-    } catch (err) {
-        console.error('Add ticker error:', err);
-        throw err;
-    }
-}
-
-=======
-
 async function saveTicker(token, ticker) {
+    // Added error handling for missing token and ticker symbol
     try {
+      if (!token) {
+        throw new Error('Missing token');
+      }
+      
+      if (!ticker) {
+        throw new Error('Missing ticker symbol');
+      }
+      
       const decoded = jwt.verify(token, JWT_SECRET);
       
       const createdAt = new Date().toISOString();
@@ -213,15 +200,49 @@ async function saveTicker(token, ticker) {
     }
 }
 
+async function retrieveTickers(token) {
+    try {
+        if (!token) {
+            throw new Error('Missing token');
+        }
+        
+        const decoded = jwt.verify(token, JWT_SECRET);
+        
+        const params = {
+            TableName: TABLES.TICKERS,
+            KeyConditionExpression: 'user_id = :userId',
+            ExpressionAttributeValues: {
+                ':userId': decoded.user_id
+            }
+        };
+        
+        const result = await docClient.query(params).promise();
+        
+        if (!result.Items || result.Items.length === 0) {
+            return { message: 'No saved tickers found', tickers: [] };
+        }
+        
+        // Format the response
+        const tickers = result.Items.map(item => ({
+            ticker: item.ticker,
+            created_at: item.created_at
+        }));
+        
+        return { 
+            message: 'Tickers retrieved successfully', 
+            count: tickers.length,
+            tickers: tickers 
+        };
+    } catch (err) {
+        console.error('Retrieve tickers error:', err);
+        throw err;
+    }
+}
 
->>>>>>> 35cbbc0f5f356e0fb5badf1e765d3e8de731fd7f
 module.exports = {
     createTables,
     registerUser,
     loginUser,
-<<<<<<< HEAD
-    addTickerToUser
-=======
-    saveTicker
->>>>>>> 35cbbc0f5f356e0fb5badf1e765d3e8de731fd7f
+    saveTicker,
+    retrieveTickers
 };
