@@ -169,7 +169,7 @@ async function loginUser(email, password) {
     }
 }
 
-async function questionnaireAnswer(token, questionId, answerId) {
+async function questionnaireComplete(token, answer2, answer3) {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         const userId = decoded.user_id;
@@ -188,73 +188,43 @@ async function questionnaireAnswer(token, questionId, answerId) {
             throw new Error('User does not exist');
         }
 
-        // Updates the user's answers every time they submit a new one
-        const submittedAnswers = {
-            ...(existingUser.Item.submittedAnswers || {}),
-            [questionId]: answerId
+        const tickersMap = {
+            // Environmental
+            '2_1': ['TSLA', 'NIO'],
+            // Social
+            '2_2': ['AAPL', 'MSFT'],
+            // Governance
+            '2_3': ['JPM', 'BAC'],
+            // News companies
+            '3_2': ['NYT', 'GOOGL'],
+            // Tech companies
+            '3_1': ['META', 'MSFT'],
+            // Finance
+            '3_3': ['GS', 'V'],
+            // Food
+            '3_4': ['MCD', 'SBUX']
         };
 
-        await docClient.update({
-            TableName: TABLES.USERS,
-            IndexName: 'UserIdIndex',
-            KeyConditionExpression: 'user_id = :userId',
-            UpdateExpression: 'set submittedAnswers = :answers',
-            ExpressionAttributeValues: {
-                ':answers': submittedAnswers
-            }
-        }).promise();
+        const keys = [`2_${answer2}`, `3_${answer3}`];
 
-        return {
-            submittedAnswers
-        };
-    } catch (err) {
-        console.error('Questionnaire answering error:', err);
-        throw err;
-    }
-}
+        const tickers = keys.flatMap((key) => tickersMap[key] || []);
+        // Gets unique tickers
+        const recommendedTickers = [...new Set(tickers)].slice(0, 3);
 
-async function questionnaireComplete(token) {
-    try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        const userId = decoded.user_id;
-
-        // Find if user exists based on active token
-        const existingUser = await docClient.get({
-            TableName: TABLES.USERS,
-            IndexName: 'UserIdIndex',
-            KeyConditionExpression: 'user_id = :userId',
-            ExpressionAttributeValues: {
-                ':userId': userId
-            }
-        }).promise();
-
-        if (!existingUser.Item) {
-            throw new Error('User does not exist');
+        // Set tickers into Ticker table
+        for (const ticker of recommendedTickers) {
+            await docClient.put({
+                TableName: TABLES.TICKERS,
+                Item: {
+                    user_id: userId,
+                    ticker,
+                    created_at: new Date().toISOString()
+                }
+            }).promise();
         }
 
-        console.log(existingUser.Item);
-
-        const submittedAnswers = existingUser.Item.submittedAnswers || {};
-
-        // const tickersMap = {
-        //     // Environmental
-        //     '2_1': ['TSLA', 'NIO'],
-        //     // Social
-        //     '2_2': ['AAPL', 'MSFT'],
-        //     // Governance
-        //     '2_3': ['JPM', 'BAC'],
-        //     // News companies
-        //     '3_2': ['NYT', 'GOOGL'],
-        //     // Tech companies
-        //     '3_1': ['META', 'MSFT'],
-        //     // Finance
-        //     '3_3': ['GS', 'V'],
-        //     // Food
-        //     '3_4': ['MCD', 'SBUX']
-        // };
-
         return {
-            submittedAnswers
+            recommendedTickers
         };
     } catch (err) {
         console.error('Questionnaire error:', err);
@@ -266,6 +236,5 @@ module.exports = {
     createTables,
     registerUser,
     loginUser,
-    questionnaireAnswer,
     questionnaireComplete
 };
