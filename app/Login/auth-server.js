@@ -60,6 +60,14 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// Returns top three companies (tickers) based on user answers
+app.get('/questionnaire/completed', async (req, res) => {
+    const { token, answer2, answer3 } = req.body;
+
+    const response = await auth.questionnaireComplete(token, answer2, answer3);
+    return res.status(200).json(response);
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 

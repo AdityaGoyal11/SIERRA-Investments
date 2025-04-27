@@ -169,8 +169,72 @@ async function loginUser(email, password) {
     }
 }
 
+async function questionnaireComplete(token, answer2, answer3) {
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.user_id;
+
+        // Find if user exists based on active token
+        const existingUser = await docClient.get({
+            TableName: TABLES.USERS,
+            IndexName: 'UserIdIndex',
+            KeyConditionExpression: 'user_id = :userId',
+            ExpressionAttributeValues: {
+                ':userId': userId
+            }
+        }).promise();
+
+        if (!existingUser.Item) {
+            throw new Error('User does not exist');
+        }
+
+        const tickersMap = {
+            // Environmental
+            '2_1': ['TSLA', 'NIO'],
+            // Social
+            '2_2': ['AAPL', 'MSFT'],
+            // Governance
+            '2_3': ['JPM', 'BAC'],
+            // News companies
+            '3_2': ['NYT', 'GOOGL'],
+            // Tech companies
+            '3_1': ['META', 'MSFT'],
+            // Finance
+            '3_3': ['GS', 'V'],
+            // Food
+            '3_4': ['MCD', 'SBUX']
+        };
+
+        const keys = [`2_${answer2}`, `3_${answer3}`];
+
+        const tickers = keys.flatMap((key) => tickersMap[key] || []);
+        // Gets unique tickers
+        const recommendedTickers = [...new Set(tickers)].slice(0, 3);
+
+        // Set tickers into Ticker table
+        for (const ticker of recommendedTickers) {
+            await docClient.put({
+                TableName: TABLES.TICKERS,
+                Item: {
+                    user_id: userId,
+                    ticker,
+                    created_at: new Date().toISOString()
+                }
+            }).promise();
+        }
+
+        return {
+            recommendedTickers
+        };
+    } catch (err) {
+        console.error('Questionnaire error:', err);
+        throw err;
+    }
+}
+
 module.exports = {
     createTables,
     registerUser,
-    loginUser
+    loginUser,
+    questionnaireComplete
 };

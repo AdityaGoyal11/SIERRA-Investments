@@ -40,10 +40,10 @@ const esgRoutesV2 = require('./routes/esgV2');
 
 // Mount routes
 app.use('/api/esg', esgRoutes);
-app.use('/api/search/company', companySearchRoutes); // Adi's routes
-app.use('/api', esgDataRoutes); // John's routes
-app.use('/api/search/level', levelSearchRoutes); // Kosar's routes
-app.use('/api/search/score', scoreSearchRoutes); // Annie's routes
+app.use('/api/search/company', companySearchRoutes); // Returns a company based by matching company name to the input
+app.use('/api', esgDataRoutes); // Returns all ESG data available
+app.use('/api/search/level', levelSearchRoutes); // Filters for data baased on rating
+app.use('/api/search/score', scoreSearchRoutes); // Filters for data based on score
 app.use('/api/v2/esg', esgRoutesV2);
 // Auth routes mounted in separate server
 
